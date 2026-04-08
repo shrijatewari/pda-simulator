@@ -1,0 +1,2298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PDA Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-base: #0a0b0f;
+      --bg-surface: #111318;
+      --bg-elevated: #181c24;
+      --bg-hover: #1e2330;
+      --border: #2a2f3d;
+      --border-bright: #3d4560;
+      --accent: #5b8af5;
+      --accent-glow: rgba(91, 138, 245, 0.2);
+      --green: #23d18b;
+      --green-glow: rgba(35, 209, 139, 0.15);
+      --red: #f25f5c;
+      --red-glow: rgba(242, 95, 92, 0.15);
+      --amber: #f5a623;
+      --purple: #a78bfa;
+      --purple-glow: rgba(167, 139, 250, 0.15);
+      --text-primary: #e8eaf0;
+      --text-secondary: #8892a4;
+      --text-muted: #525d72;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 16px;
+      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
+      --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 14px; }
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: var(--bg-base);
+      background-image: var(--noise);
+      color: var(--text-primary);
+    }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    ::-webkit-scrollbar-track { background: var(--border); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+
+    .kbd {
+      display: inline-block;
+      padding: 2px 6px;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+
+    header {
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      background: rgba(17, 19, 24, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .logo-svg { flex-shrink: 0; }
+    .header-left { display: flex; align-items: center; gap: 12px; }
+    .header-title { font-size: 17px; font-weight: 600; color: var(--text-primary); }
+    .version-pill {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+    }
+    .header-center { flex: 1; display: flex; justify-content: center; min-width: 200px; position: relative; }
+    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+    .preset-trigger {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 36px;
+      min-width: 260px;
+      padding: 0 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .preset-trigger:hover { border-color: var(--border-bright); background: rgba(255, 255, 255, 0.06); }
+    .preset-trigger .preset-chevron { margin-left: auto; opacity: 0.6; font-size: 10px; }
+    .preset-menu {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 320px;
+      max-height: 320px;
+      overflow: auto;
+      z-index: 200;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-card);
+      padding: 6px;
+    }
+    .preset-menu.open { display: block; }
+    .preset-item {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: transparent;
+      color: var(--text-primary);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .preset-item:hover { background: var(--bg-hover); }
+    .preset-item-title { font-weight: 600; margin-bottom: 4px; }
+    .preset-item-desc { font-size: 12px; color: var(--text-muted); font-weight: 400; }
+    .tag-pill { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
+    .tag-pill.cf { background: rgba(91, 138, 245, 0.2); color: var(--accent); }
+    .tag-pill.cfl { background: var(--green-glow); color: var(--green); }
+    .tag-pill.non { background: var(--red-glow); color: var(--red); }
+
+    .btn-ghost-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 13px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-ghost-header:hover { background: var(--bg-hover); border-color: var(--border-bright); }
+    .theme-glow {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, var(--bg-elevated), #1a2030);
+      box-shadow: 0 0 20px var(--accent-glow);
+      cursor: pointer;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .app-main {
+      display: grid;
+      grid-template-columns: 300px 1fr 220px;
+      grid-template-rows: 1fr auto;
+      gap: 16px;
+      padding: 16px;
+      max-width: 1920px;
+      margin: 0 auto;
+      min-height: calc(100vh - 56px);
+    }
+    @media (max-width: 1279px) {
+      .app-main { grid-template-columns: 1fr; grid-template-rows: auto; }
+    }
+    .tabs-mobile { display: none; gap: 8px; padding: 0 16px 8px; }
+    @media (max-width: 1279px) { .tabs-mobile { display: flex; } }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+    }
+    .tab-btn.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+
+    .card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-card);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .section-head .accent-bar { width: 2px; height: 14px; border-radius: 1px; }
+    .section-head.states .accent-bar { background: var(--accent); }
+    .section-head.trans .accent-bar { background: var(--green); }
+    .section-head .count-pill {
+      margin-left: auto;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      letter-spacing: 0;
+    }
+
+    .def-scroll { overflow: auto; max-height: min(72vh, 620px); padding-right: 4px; }
+
+    /* States */
+    .state-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      transition: background 0.15s;
+    }
+    .state-row:hover { background: var(--bg-hover); }
+    .state-row.active-sim {
+      background: rgba(91, 138, 245, 0.08);
+      border-left: 2px solid var(--accent);
+    }
+    .state-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      flex-shrink: 0;
+    }
+    .state-dot.pulse {
+      background: var(--accent);
+      box-shadow: 0 0 0 0 rgba(91, 138, 245, 0.5);
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(91, 138, 245, 0.45); }
+      50% { box-shadow: 0 0 0 6px rgba(91, 138, 245, 0); }
+    }
+    .state-name-wrap { flex: 1; min-width: 0; }
+    .state-name-wrap input {
+      width: 100%;
+      max-width: 120px;
+      border: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
+      border-bottom: 1px solid transparent;
+      padding: 2px 0;
+    }
+    .state-name-wrap input:focus { border-bottom-color: var(--accent); outline: none; }
+    .badge-s, .badge-a {
+      font-size: 10px;
+      font-weight: 700;
+      width: 26px;
+      height: 24px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .badge-s.on { background: rgba(91, 138, 245, 0.12); border-color: var(--accent); color: var(--accent); }
+    .badge-a.on { background: var(--green-glow); border-color: var(--green); color: var(--green); }
+    .state-menu-wrap { position: relative; }
+    .state-menu-btn {
+      width: 32px;
+      height: 28px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s;
+    }
+    .state-row:hover .state-menu-btn { opacity: 1; }
+    .state-menu-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .state-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      z-index: 50;
+      min-width: 120px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-card);
+      padding: 4px;
+    }
+    .state-dropdown.open { display: block; }
+    .state-dropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 8px 10px;
+      border: none;
+      background: none;
+      color: var(--red);
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .state-dropdown button:hover { background: var(--bg-hover); }
+    .btn-add-dashed {
+      width: 100%;
+      height: 34px;
+      margin-top: 4px;
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-md);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-add-dashed:hover { background: var(--bg-hover); border-color: var(--border-bright); color: var(--text-secondary); }
+
+    /* Transition cards */
+    .trans-cards { display: flex; flex-direction: column; gap: 8px; }
+    .trans-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px;
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    .trans-card.invalid { border-left: 3px solid var(--red); }
+    .trans-card.hover-sync { box-shadow: 0 0 0 2px var(--accent-glow); }
+    .trans-card.active-step {
+      border-color: var(--green);
+      box-shadow: 0 0 16px var(--green-glow);
+    }
+    .trans-card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .trans-card-head .arrow { color: var(--accent); margin: 0 8px; }
+    .trans-card-head select {
+      border: none;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-weight: 600;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    .trans-card-del {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+    .trans-card-del:hover { background: var(--red-glow); color: var(--red); }
+    .trans-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+    @media (max-width: 520px) { .trans-fields { grid-template-columns: 1fr; } }
+    .tf {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .tf label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+    .tf input {
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+    }
+    .tf input.eps-input { color: var(--amber); font-style: italic; }
+
+    /* Simulation */
+    .sim-token-area {
+      min-height: 56px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      padding: 12px;
+      margin-bottom: 8px;
+    }
+    .token-chip {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, monospace;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .token-chip.done { opacity: 0.35; text-decoration: line-through; }
+    .token-chip.cur {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+      transform: scale(1.1);
+      box-shadow: 0 0 12px var(--accent-glow);
+      animation: chipPulse 1.5s ease-in-out infinite;
+    }
+    @keyframes chipPulse {
+      0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
+      50% { box-shadow: 0 0 16px rgba(91, 138, 245, 0.45); }
+    }
+    .sim-position { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .sim-input-field {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-base);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .sim-input-field:focus { border-color: var(--accent); outline: none; color: var(--text-primary); }
+    .sim-token-area.flash-invalid { animation: flashR 0.4s; }
+    @keyframes flashR {
+      0%, 100% { border-color: var(--border); }
+      50% { border-color: var(--red); }
+    }
+
+    .controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+    .btn-run {
+      height: 40px;
+      padding: 0 20px;
+      border: none;
+      border-radius: var(--radius-md);
+      background: linear-gradient(135deg, #5b8af5, #7c6ef5);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(91, 138, 245, 0.4);
+      transition: filter 0.15s, transform 0.1s;
+    }
+    .btn-run:hover { filter: brightness(1.08); }
+    .btn-run:active { transform: scale(0.97); }
+    .btn-step {
+      height: 38px;
+      padding: 0 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .btn-step:hover { background: var(--bg-hover); }
+    .btn-reset { border: none; background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 8px 10px; }
+    .btn-reset:hover { color: var(--text-primary); }
+    .speed-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 14px; }
+    .speed-row input[type="range"] {
+      -webkit-appearance: none;
+      width: 160px;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--border);
+    }
+    .speed-row input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+    .auto-run-label { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 13px; cursor: pointer; }
+    .auto-run-label input { accent-color: var(--accent); width: 18px; height: 18px; }
+
+    .banner {
+      margin-top: 14px;
+      padding: 14px 44px 14px 16px;
+      border-radius: var(--radius-md);
+      display: none;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      animation: bannerIn 0.25s ease-out;
+    }
+    .banner.show { display: flex; }
+    @keyframes bannerIn {
+      from { opacity: 0; transform: translateY(-12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .banner.accept {
+      background: linear-gradient(90deg, rgba(35, 209, 139, 0.12), transparent);
+      border: 1px solid rgba(35, 209, 139, 0.35);
+      border-left: 3px solid var(--green);
+      color: var(--green);
+    }
+    .banner.reject {
+      background: linear-gradient(90deg, rgba(242, 95, 92, 0.12), transparent);
+      border: 1px solid rgba(242, 95, 92, 0.35);
+      border-left: 3px solid var(--red);
+      color: var(--red);
+    }
+    .banner-dismiss {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: inherit;
+      opacity: 0.7;
+      cursor: pointer;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .banner-dismiss:hover { opacity: 1; }
+    .banner-sub { font-size: 13px; font-weight: 400; opacity: 0.9; margin-top: 4px; color: var(--text-secondary); }
+    .check-anim svg circle { stroke: var(--green); stroke-dasharray: 24; stroke-dashoffset: 24; animation: drawCheck 0.5s ease forwards; }
+    @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+    .warn-box {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: rgba(245, 166, 35, 0.1);
+      border: 1px solid var(--amber);
+      font-size: 12px;
+      color: var(--amber);
+    }
+
+    .log-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 8px; }
+    .log-step-badge {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      font-family: ui-monospace, monospace;
+    }
+    .log-table-wrap {
+      overflow: auto;
+      max-height: 340px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-base);
+    }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .log-table th {
+      position: sticky;
+      top: 0;
+      background: var(--bg-base);
+      z-index: 1;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    .log-table td { padding: 10px 12px; height: 36px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .log-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    .log-row-current {
+      border-left: 3px solid var(--accent);
+      background: rgba(91, 138, 245, 0.07) !important;
+    }
+    .log-row-current td { color: var(--text-primary); }
+    .log-mono { font-family: ui-monospace, monospace; }
+    .stack-inline-chip {
+      display: inline-block;
+      padding: 2px 6px;
+      margin: 0 2px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      background: rgba(91, 138, 245, 0.1);
+    }
+    .stack-inline-chip.z0 {
+      border-color: var(--purple);
+      color: var(--purple);
+      background: var(--purple-glow);
+    }
+    .badge-act { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; margin: 2px; }
+    .badge-act.push { background: var(--green-glow); border: 1px solid var(--green); color: var(--green); }
+    .badge-act.pop { background: var(--red-glow); border: 1px solid var(--red); color: var(--red); }
+    .badge-act.eps { background: rgba(245, 166, 35, 0.12); border: 1px solid var(--amber); color: var(--amber); }
+    .badge-act.cons { background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent); }
+    .badge-act.start { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted); }
+    .branch-block {
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-left: 2px dashed var(--border);
+      color: var(--text-muted);
+      font-size: 11px;
+      font-family: ui-monospace, monospace;
+      background: var(--bg-elevated);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    }
+
+    /* Stack panel */
+    .stack-head-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .stack-head-row .accent-bar { width: 2px; height: 14px; background: var(--purple); border-radius: 1px; }
+    .stack-icon-anim.shuffle .bar1 { animation: sh1 0.4s ease; }
+    .stack-icon-anim.shuffle .bar2 { animation: sh2 0.4s ease; }
+    .stack-icon-anim.shuffle .bar3 { animation: sh3 0.4s ease; }
+    @keyframes sh1 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+    @keyframes sh2 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
+    @keyframes sh3 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
+    .stack-visual {
+      display: flex;
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 12px;
+      min-height: 220px;
+      position: relative;
+    }
+    .stack-spine {
+      width: 1px;
+      align-self: stretch;
+      min-height: 120px;
+      border-left: 1px dashed var(--border);
+      margin-top: 24px;
+      flex-shrink: 0;
+    }
+    .stack-main { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .stack-arrow { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; width: 100%; text-align: center; }
+    .stack-arrow::before { content: '▾ '; color: var(--accent); }
+    .stack-cells { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+    .stack-cell {
+      width: 180px;
+      height: 52px;
+      border-radius: 10px;
+      border: 1.5px solid var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: ui-monospace, monospace;
+      background: var(--bg-elevated);
+      color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s;
+    }
+    .stack-cell.z0 {
+      background: var(--purple-glow);
+      border-color: var(--purple);
+      color: var(--purple);
+      gap: 6px;
+    }
+    .stack-cell.z0 .z0-mark { font-size: 14px; opacity: 0.8; }
+    .stack-cell.push-anim { animation: stackPush 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, stackGlowG 0.6s ease; }
+    @keyframes stackPush {
+      from { transform: translateY(-60px) scale(0.85); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    @keyframes stackGlowG {
+      0% { box-shadow: 0 0 20px var(--green-glow), 0 0 6px var(--green); }
+      100% { box-shadow: 0 0 12px var(--accent-glow); }
+    }
+    .stack-cell.pop-anim { animation: stackPop 0.28s ease-in forwards; }
+    @keyframes stackPop {
+      to { transform: translateY(-60px) scale(0.85); opacity: 0; }
+    }
+    .stack-cell.pop-rev { animation: stackPushRev 0.35s ease-out forwards; }
+    @keyframes stackPushRev {
+      from { transform: translateY(-60px) scale(0.85); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    .stack-cell.push-out-rev { animation: stackPopRev 0.28s ease-in forwards; }
+    @keyframes stackPopRev {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(-60px) scale(0.85); opacity: 0; }
+    }
+    .stack-empty {
+      width: 180px;
+      padding: 32px 16px;
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-md);
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      font-size: 13px;
+    }
+    .stack-depth-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--text-muted); }
+    .stack-warn-deep { margin-top: 8px; padding: 8px; border-radius: var(--radius-sm); background: var(--red-glow); border: 1px solid var(--red); color: var(--red); font-size: 11px; }
+    .stack-overflow-banner { margin-top: 8px; padding: 8px 10px; border-radius: var(--radius-sm); background: rgba(242, 95, 92, 0.15); border: 1px solid var(--red); color: var(--red); font-size: 12px; }
+
+    /* Diagram */
+    .diagram-card { grid-column: 1 / -1; padding: 16px 20px 20px; }
+    .diagram-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .diagram-zoom { display: flex; gap: 6px; align-items: center; }
+    .diagram-zoom button {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1;
+    }
+    .diagram-zoom button:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .diagram-viewport {
+      position: relative;
+      width: 100%;
+      height: 320px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background-color: var(--bg-base);
+      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+      background-size: 16px 16px;
+      overflow: hidden;
+      cursor: grab;
+    }
+    .diagram-viewport:active { cursor: grabbing; }
+    .diagram-empty {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      font-size: 13px;
+      text-align: center;
+      padding: 24px;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .diagram-empty svg { opacity: 0.25; margin-bottom: 12px; }
+    .diagram-svg { width: 100%; height: 100%; display: block; }
+    .node circle { fill: var(--bg-elevated); stroke: var(--border); stroke-width: 2; cursor: grab; }
+    .node.start > circle { stroke: var(--accent); }
+    .node.accept circle.outer { r: 22; }
+    .node.accept circle.inner { r: 18; }
+    .node.visited > circle { fill: rgba(91, 138, 245, 0.15); stroke: var(--accent); }
+    .node.active circle {
+      fill: var(--accent);
+      stroke: var(--accent);
+      animation: nodeBreathe 2s ease-in-out infinite;
+    }
+    @keyframes nodeBreathe {
+      0%, 100% { filter: drop-shadow(0 0 8px rgba(91, 138, 245, 0.5)); }
+      50% { filter: drop-shadow(0 0 16px rgba(91, 138, 245, 0.85)); }
+    }
+    .node.active text { fill: #fff; }
+    .node text { fill: var(--text-primary); font-size: 13px; font-weight: 600; }
+    .edge-path { fill: none; stroke: var(--text-muted); stroke-width: 1.5; opacity: 0.85; }
+    .edge-path.used { stroke: rgba(91, 138, 245, 0.55); stroke-width: 2; }
+    .edge-path.highlight { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 10 8; animation: dashmove 1s linear infinite; }
+    @keyframes dashmove { to { stroke-dashoffset: -36; } }
+    .minimap {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      width: 120px;
+      height: 80px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-surface);
+      opacity: 0.9;
+      z-index: 5;
+      pointer-events: none;
+    }
+
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 300;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .toast {
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-card);
+      font-size: 13px;
+      color: var(--text-primary);
+      animation: toastIn 0.3s ease;
+      max-width: 320px;
+    }
+    .toast.ok { border-left: 3px solid var(--green); }
+    .toast.err { border-left: 3px solid var(--red); }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(24px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .skeleton-shimmer {
+      animation: skel 0.4s ease;
+    }
+    @keyframes skel {
+      0% { opacity: 0.6; filter: brightness(1.2); }
+      50% { opacity: 1; filter: brightness(1.4); }
+      100% { opacity: 1; filter: brightness(1); }
+    }
+
+    .tooltip-hint { border-bottom: 1px dotted var(--text-muted); cursor: help; }
+    .file-input-hidden { display: none; }
+    .stagger-item { opacity: 0; animation: fadeInRow 0.3s ease forwards; }
+    @keyframes fadeInRow { to { opacity: 1; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-left">
+      <svg class="logo-svg" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+        <defs>
+          <linearGradient id="logoGrad" x1="4" y1="24" x2="28" y2="8" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#5b8af5"/><stop offset="1" stop-color="#a78bfa"/>
+          </linearGradient>
+        </defs>
+        <rect x="5" y="22" width="22" height="3.5" rx="1" stroke="url(#logoGrad)" stroke-width="2" fill="none"/>
+        <rect x="8" y="14.5" width="16" height="3.5" rx="1" stroke="url(#logoGrad)" stroke-width="2" fill="none" opacity="0.9"/>
+        <rect x="11" y="7" width="10" height="3.5" rx="1" stroke="url(#logoGrad)" stroke-width="2" fill="none" opacity="0.75"/>
+      </svg>
+      <span class="header-title">PDA Simulator</span>
+      <span class="version-pill">v1.0</span>
+    </div>
+    <div class="header-center">
+      <button type="button" class="preset-trigger" id="presetTrigger" aria-expanded="false" aria-haspopup="listbox">
+        <span aria-hidden="true">⚡</span>
+        <span id="presetTriggerLabel">Load preset…</span>
+        <span class="preset-chevron">▼</span>
+      </button>
+      <div class="preset-menu" id="presetMenu" role="listbox"></div>
+    </div>
+    <div class="header-right">
+      <button type="button" id="btnImport" class="btn-ghost-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Import
+      </button>
+      <button type="button" id="btnExport" class="btn-ghost-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+        Export
+      </button>
+      <input type="file" id="fileImport" class="file-input-hidden" accept="application/json" />
+      <button type="button" class="theme-glow" id="btnTheme" title="Light mode coming soon" aria-label="Theme">🌙</button>
+    </div>
+  </header>
+
+  <div class="tabs-mobile" role="tablist">
+    <button type="button" class="tab-btn active" data-tab="def">Definition</button>
+    <button type="button" class="tab-btn" data-tab="sim">Simulation</button>
+    <button type="button" class="tab-btn" data-tab="stack">Stack</button>
+  </div>
+
+  <main class="app-main">
+    <section class="card def-scroll" id="panelDef" data-panel="def">
+      <div class="section-head states"><span class="accent-bar"></span> Definition</div>
+      <div>
+        <div class="section-head states" style="margin-top:0"><span class="accent-bar"></span> States</div>
+        <div id="statesBody"></div>
+        <button type="button" id="addState" class="btn-add-dashed">+ Add State</button>
+      </div>
+      <div style="height:1px;background:var(--border);margin:16px 0"></div>
+      <div>
+        <div class="section-head trans"><span class="accent-bar"></span> Transitions <span class="count-pill" id="transCountPill">0</span></div>
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;line-height:1.5">
+          <span class="tooltip-hint" title="No input consumed">Input</span> empty = ε (amber). Push is <span class="tooltip-hint" title="Leftmost = new stack top">top-first</span>; leave empty after pop for ε.
+        </p>
+        <div class="trans-cards" id="transBody"></div>
+        <button type="button" id="addTrans" class="btn-add-dashed" style="margin-top:8px">+ Add Transition</button>
+      </div>
+    </section>
+
+    <section class="card" id="panelSim" data-panel="sim">
+      <div class="section-head states"><span class="accent-bar"></span> Simulation</div>
+      <div id="simTokenRow" class="sim-token-area" tabindex="0" aria-label="Input tokens"></div>
+      <div class="sim-position" id="simPosition">Position — of —</div>
+      <input type="text" class="sim-input-field" id="simInputField" placeholder="Type input string… focus token row or click here" autocomplete="off" />
+      <div class="controls-row">
+        <button type="button" id="btnReset" class="btn-reset">⏮ Reset <span class="kbd">R</span></button>
+        <button type="button" id="btnBack" class="btn-step">◀ Back</button>
+        <button type="button" id="btnStep" class="btn-step">▶ Step <span class="kbd">Space</span></button>
+        <button type="button" id="btnRun" class="btn-run">▶▶ Run <span class="kbd">Enter</span></button>
+      </div>
+      <div class="speed-row">
+        <span style="color:var(--text-muted);font-size:13px">Speed</span>
+        <input type="range" id="speedRange" min="100" max="2000" step="50" value="500" />
+        <span id="speedLabel" style="font-family:ui-monospace,monospace;font-size:13px;color:var(--text-secondary)">500ms</span>
+        <label class="auto-run-label"><input type="checkbox" id="autoRun" /> Auto-run</label>
+      </div>
+      <div id="resultBanner" class="banner" role="status"></div>
+      <div id="bfsWarn" class="warn-box" style="display:none"></div>
+      <div class="log-header-row">
+        <div class="section-head states" style="margin:0"><span class="accent-bar"></span> Configuration log</div>
+        <span class="log-step-badge" id="logStepBadge">Step — / —</span>
+      </div>
+      <div class="log-table-wrap" id="logWrap">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th>Step</th>
+              <th>State</th>
+              <th>Remaining</th>
+              <th>Stack</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+      <div id="branchArea"></div>
+    </section>
+
+    <section class="card stack-panel" id="panelStack" data-panel="stack">
+      <div class="stack-head-row">
+        <span class="accent-bar"></span>
+        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--text-muted);text-transform:uppercase">Stack</span>
+        <svg class="stack-icon-anim" id="stackIconAnim" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+          <rect class="bar1" x="4" y="16" width="16" height="3" rx="1" fill="var(--purple)"/>
+          <rect class="bar2" x="6" y="10" width="12" height="3" rx="1" fill="var(--accent)"/>
+          <rect class="bar3" x="8" y="4" width="8" height="3" rx="1" fill="var(--text-muted)"/>
+        </svg>
+      </div>
+      <div class="stack-visual" id="stackVisual">
+        <div class="stack-spine"></div>
+        <div class="stack-main">
+          <div class="stack-arrow">top</div>
+          <div class="stack-cells" id="stackCells"></div>
+        </div>
+      </div>
+      <div class="stack-depth-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-muted)"><rect x="3" y="14" width="18" height="6" rx="1"/><rect x="5" y="8" width="14" height="5" rx="1"/><rect x="7" y="3" width="10" height="4" rx="1"/></svg>
+        Depth: <strong id="stackDepth" style="color:var(--text-secondary)">0</strong>
+      </div>
+      <p id="stackDeepWarn" style="display:none;font-size:11px;color:var(--amber);margin:6px 0 0">Stack growing deep</p>
+      <div id="stackOverflowBanner" class="stack-overflow-banner" style="display:none">Stack depth exceeds 20 — check for loops.</div>
+    </section>
+
+    <section class="card diagram-card">
+      <div class="diagram-toolbar">
+        <div class="section-head states" style="margin:0"><span class="accent-bar"></span> State diagram</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <div class="diagram-zoom">
+            <button type="button" id="diagramZoomOut" title="Zoom out">−</button>
+            <button type="button" id="diagramZoomIn" title="Zoom in">+</button>
+          </div>
+          <button type="button" id="btnAutoLayout" class="btn-ghost-header" title="Auto-layout">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            Auto-layout
+          </button>
+        </div>
+      </div>
+      <div class="diagram-viewport" id="diagramViewport">
+        <div class="diagram-empty" id="diagramEmpty">
+          <svg width="64" height="48" viewBox="0 0 64 48" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="20" cy="24" r="8"/><circle cx="44" cy="24" r="8"/><path d="M28 24h8M36 20v8"/>
+          </svg>
+          Add states in the left panel to see them here
+        </div>
+        <svg class="diagram-svg" id="diagramSvg" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 z" fill="#525d72" />
+            </marker>
+            <marker id="arrowheadActive" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+              <path d="M0,0 L8,4 L0,8 z" fill="#5b8af5" />
+            </marker>
+          </defs>
+          <g id="panGroup">
+            <g id="edgesGroup"></g>
+            <g id="nodesGroup"></g>
+          </g>
+        </svg>
+        <canvas class="minimap" id="diagramMinimap" width="120" height="80" style="display:none"></canvas>
+      </div>
+    </section>
+  </main>
+  <div class="toast-container" id="toastContainer" aria-live="polite"></div>
+
+  <script>
+(function () {
+  const Z0 = 'Z₀';
+  const EPS = 'ε';
+  const STORAGE_PDA = 'pda_sim_definition_v1';
+  const STORAGE_POS = 'pda_sim_positions_v1';
+  const BFS_CAP = 10000;
+
+  /** @typedef {{ id: string, name: string, isStart: boolean, isAccept: boolean }} State */
+  /** @typedef {{ from: string, input: string, stackTop: string, to: string, push: string[] }} Transition */
+
+  function defaultPDA() {
+    return {
+      states: [
+        { id: 's0', name: 'q0', isStart: true, isAccept: false },
+        { id: 's1', name: 'q1', isAccept: true, isStart: false },
+      ],
+      transitions: [],
+      stackAlphabet: [Z0],
+      inputAlphabet: ['a', 'b'],
+    };
+  }
+
+  const PRESETS = {
+    anbn: () => ({
+      states: [
+        { id: 'a0', name: 'q0', isStart: true, isAccept: false },
+        { id: 'a1', name: 'q1', isAccept: false, isStart: false },
+        { id: 'a2', name: 'q2', isAccept: false, isStart: false },
+        { id: 'a3', name: 'q3', isAccept: true, isStart: false },
+      ],
+      transitions: [
+        { from: 'q0', input: '', stackTop: Z0, to: 'q3', push: [Z0], requireEmptyInput: true },
+        { from: 'q0', input: 'a', stackTop: Z0, to: 'q1', push: ['A', Z0] },
+        { from: 'q1', input: 'a', stackTop: 'A', to: 'q1', push: ['A', 'A'] },
+        { from: 'q1', input: 'b', stackTop: 'A', to: 'q2', push: [] },
+        { from: 'q2', input: 'b', stackTop: 'A', to: 'q2', push: [] },
+        { from: 'q2', input: '', stackTop: Z0, to: 'q3', push: [Z0] },
+      ],
+      stackAlphabet: [Z0, 'A'],
+      inputAlphabet: ['a', 'b'],
+    }),
+    palindrome: () => ({
+      states: [
+        { id: 'p0', name: 'q0', isStart: true, isAccept: false },
+        { id: 'p1', name: 'q1', isAccept: false, isStart: false },
+        { id: 'p2', name: 'q2', isAccept: true, isStart: false },
+      ],
+      transitions: [
+        { from: 'q0', input: 'a', stackTop: Z0, to: 'q0', push: ['a', Z0] },
+        { from: 'q0', input: 'b', stackTop: Z0, to: 'q0', push: ['b', Z0] },
+        { from: 'q0', input: 'a', stackTop: 'a', to: 'q0', push: ['a', 'a'] },
+        { from: 'q0', input: 'a', stackTop: 'b', to: 'q0', push: ['a', 'b'] },
+        { from: 'q0', input: 'b', stackTop: 'a', to: 'q0', push: ['b', 'a'] },
+        { from: 'q0', input: 'b', stackTop: 'b', to: 'q0', push: ['b', 'b'] },
+        { from: 'q0', input: '', stackTop: Z0, to: 'q1', push: [Z0] },
+        { from: 'q0', input: '', stackTop: 'a', to: 'q1', push: ['a'] },
+        { from: 'q0', input: '', stackTop: 'b', to: 'q1', push: ['b'] },
+        { from: 'q1', input: 'a', stackTop: 'a', to: 'q1', push: [] },
+        { from: 'q1', input: 'b', stackTop: 'b', to: 'q1', push: [] },
+        { from: 'q1', input: '', stackTop: 'a', to: 'q1', push: [] },
+        { from: 'q1', input: '', stackTop: 'b', to: 'q1', push: [] },
+        { from: 'q1', input: '', stackTop: Z0, to: 'q2', push: [Z0] },
+      ],
+      stackAlphabet: [Z0, 'a', 'b'],
+      inputAlphabet: ['a', 'b'],
+    }),
+    parens: () => ({
+      states: [
+        { id: 'b0', name: 'q0', isStart: true, isAccept: false },
+        { id: 'b1', name: 'q1', isAccept: true, isStart: false },
+      ],
+      transitions: [
+        { from: 'q0', input: '(', stackTop: Z0, to: 'q0', push: ['(', Z0] },
+        { from: 'q0', input: '(', stackTop: '(', to: 'q0', push: ['(', '('] },
+        { from: 'q0', input: ')', stackTop: '(', to: 'q0', push: [] },
+        { from: 'q0', input: '', stackTop: Z0, to: 'q1', push: [Z0] },
+      ],
+      stackAlphabet: [Z0, '('],
+      inputAlphabet: ['(', ')'],
+    }),
+    anbncn: () => ({
+      states: [{ id: 'c0', name: 'q0', isStart: true, isAccept: false }],
+      transitions: [],
+      stackAlphabet: [Z0],
+      inputAlphabet: ['a', 'b', 'c'],
+    }),
+  };
+
+  let pda = loadPDA() || defaultPDA();
+  let nodePositions = loadPositions() || {};
+  let simPath = /** @type {null | Array<{ config: any, action: any, branches: any[] }>} */ (null);
+  let stepIndex = 0;
+  let autoTimer = null;
+  let stepDirection = 1;
+  let hoveredTransIndex = -1;
+  let lastRunAccepted = false;
+  let diagramZoom = 1;
+  let diagramPan = { x: 0, y: 0 };
+  let diagramDrag = null;
+
+  const PRESET_META = {
+    anbn: { title: 'aⁿbⁿ recognizer', desc: 'Classic balanced aⁿbⁿ using stack', tag: 'cf', key: 'anbn' },
+    palindrome: { title: 'Palindrome {a,b}', desc: 'Guess midpoint; match second half', tag: 'cfl', key: 'palindrome' },
+    parens: { title: 'Balanced ( )', desc: 'Push on (, pop on )', tag: 'cfl', key: 'parens' },
+    anbncn: { title: 'aⁿbⁿcⁿ demo', desc: 'Not context-free — always reject', tag: 'non', key: 'anbncn' },
+  };
+
+  function showToast(msg, ok) {
+    const c = el('toastContainer');
+    const t = document.createElement('div');
+    t.className = 'toast ' + (ok ? 'ok' : 'err');
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => { t.remove(); }, 3000);
+  }
+
+  function flashSkeleton() {
+    document.querySelectorAll('.card').forEach(card => {
+      card.classList.add('skeleton-shimmer');
+      setTimeout(() => card.classList.remove('skeleton-shimmer'), 400);
+    });
+  }
+
+  function buildPresetMenu() {
+    const menu = el('presetMenu');
+    if (!menu) return;
+    menu.innerHTML = '';
+    Object.keys(PRESET_META).forEach(k => {
+      const m = PRESET_META[k];
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'preset-item';
+      b.setAttribute('data-preset', k);
+      const tagClass = m.tag === 'cfl' ? 'cfl' : m.tag === 'non' ? 'non' : 'cf';
+      b.innerHTML = `<div class="preset-item-title">${escapeHtml(m.title)} <span class="tag-pill ${tagClass}">${m.tag === 'cfl' ? 'CFL' : m.tag === 'non' ? 'Non-CFL' : 'Regular'}</span></div><div class="preset-item-desc">${escapeHtml(m.desc)}</div>`;
+      menu.appendChild(b);
+    });
+  }
+
+  function allowedInputChars() {
+    const s = new Set(pda.inputAlphabet || []);
+    pda.transitions.forEach(t => {
+      if (t.input && t.input !== EPS && t.input !== '') s.add(t.input);
+    });
+    return s;
+  }
+
+  function loadPDA() {
+    try {
+      const raw = localStorage.getItem(STORAGE_PDA);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (_) { return null; }
+  }
+  function savePDA() {
+    localStorage.setItem(STORAGE_PDA, JSON.stringify(pda));
+  }
+  function loadPositions() {
+    try {
+      const raw = localStorage.getItem(STORAGE_POS);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch (_) { return null; }
+  }
+  function savePositions() {
+    localStorage.setItem(STORAGE_POS, JSON.stringify(nodePositions));
+  }
+
+  function stateByName(name) {
+    return pda.states.find(s => s.name === name);
+  }
+  function allStateNames() {
+    return pda.states.map(s => s.name);
+  }
+
+  function normalizePush(arr) {
+    if (!arr || !arr.length) return [];
+    const t = arr.filter(x => x && x !== EPS);
+    return t;
+  }
+
+  function parsePushStr(str) {
+    const s = (str || '').trim();
+    if (!s) return [];
+    const parts = s.split(/\s+/).filter(Boolean);
+    return parts.map(p => (p === 'e' || p === 'ε' ? EPS : p));
+  }
+
+  function serializePush(push) {
+    if (!push || !push.length) return '';
+    return push.map(p => p).join(' ');
+  }
+
+  function configKey(c) {
+    return c.state + '|' + c.remainingInput + '|' + c.stack.join(',');
+  }
+
+  function getStartStateName() {
+    const s = pda.states.find(x => x.isStart);
+    return s ? s.name : null;
+  }
+
+  function applyTransition(config, t) {
+    if (t.requireEmptyInput && config.remainingInput.length > 0) return null;
+    let remaining = config.remainingInput;
+    const stack = config.stack.slice();
+    if (stack.length === 0) return null;
+    if (stack[0] !== t.stackTop) return null;
+    const isEpsIn = !t.input || t.input === EPS || t.input === '';
+    if (!isEpsIn) {
+      if (!remaining.length || remaining[0] !== t.input) return null;
+      remaining = remaining.slice(1);
+    }
+    stack.shift();
+    const push = normalizePush(t.push);
+    const newStack = [...push, ...stack];
+    return { state: t.to, remainingInput: remaining, stack: newStack };
+  }
+
+  function getSuccessors(config) {
+    const out = [];
+    for (let i = 0; i < pda.transitions.length; i++) {
+      const t = pda.transitions[i];
+      if (t.from !== config.state) continue;
+      const next = applyTransition(config, t);
+      if (next) {
+        out.push({ next, transIndex: i, t: { ...t, _i: i } });
+      }
+    }
+    return out;
+  }
+
+  function isAccepting(config) {
+    const st = stateByName(config.state);
+    if (!st || !st.isAccept) return false;
+    if (config.remainingInput && config.remainingInput.length > 0) return false;
+    return true;
+  }
+
+  function buildActionTag(config, next, t, transIndex) {
+    const parts = [];
+    const isEpsIn = !t.input || t.input === EPS || t.input === '';
+    const oldTop = config.stack[0];
+    if (!isEpsIn) {
+      parts.push({ cls: 'tag-cons', text: 'consume ' + t.input });
+    } else {
+      parts.push({ cls: 'tag-eps', text: 'ε-move' });
+    }
+    const popped = oldTop;
+    const push = normalizePush(t.push);
+    if (popped) {
+      parts.push({ cls: 'tag-pop', text: 'Pop ' + popped });
+    }
+    if (push.length) {
+      parts.push({ cls: 'tag-push', text: 'Push ' + push.join('') });
+    }
+    return parts;
+  }
+
+  function describeActionPlain(config, t) {
+    const bits = [];
+    if (t.input && t.input !== EPS && t.input !== '') bits.push('read ' + t.input);
+    else bits.push('ε');
+    bits.push(t.stackTop + '→' + (serializePush(normalizePush(t.push)) || 'ε'));
+    return bits.join(', ');
+  }
+
+  function runBFS2(inputStr) {
+    const startName = getStartStateName();
+    if (!startName) return { error: 'No start state', path: null, explored: 0, truncated: false, rejected: true, accepted: false };
+
+    const start = { state: startName, remainingInput: inputStr, stack: [Z0] };
+    /** @type {{ cfg: any, parent: number, transIndex: number, t: any }[]} */
+    const nodes = [];
+    const queue = [];
+    const visited = new Set();
+    const enqueued = new Set();
+    let truncated = false;
+
+    function tryEnqueue(cfg, parentIdx, transIndex, t) {
+      const nk = configKey(cfg);
+      if (visited.has(nk) || enqueued.has(nk)) return;
+      if (nodes.length >= BFS_CAP) {
+        truncated = true;
+        return;
+      }
+      enqueued.add(nk);
+      const newIdx = nodes.length;
+      nodes.push({ cfg, parent: parentIdx, transIndex, t });
+      queue.push(newIdx);
+    }
+
+    nodes.push({ cfg: start, parent: -1, transIndex: -1, t: null });
+    enqueued.add(configKey(start));
+    queue.push(0);
+
+    while (queue.length) {
+      if (truncated) break;
+      const idx = queue.shift();
+      const item = nodes[idx];
+      const k = configKey(item.cfg);
+      if (visited.has(k)) continue;
+      visited.add(k);
+
+      if (isAccepting(item.cfg)) {
+        const chain = [];
+        let i = idx;
+        while (i >= 0) {
+          chain.push(nodes[i]);
+          i = nodes[i].parent;
+        }
+        chain.reverse();
+        const rich = chain.map((node, j) => {
+          const branches = getSuccessors(node.cfg).map(s => ({
+            cfg: s.next,
+            desc: describeActionPlain(node.cfg, s.t),
+          }));
+          let action = { tags: [{ cls: 'tag-cons', text: 'Start' }], plain: 'Start' };
+          let transIdx = -1;
+          if (j > 0 && node.t) {
+            const prev = chain[j - 1];
+            action = {
+              tags: buildActionTag(prev.cfg, node.cfg, node.t, node.transIndex),
+              plain: describeActionPlain(prev.cfg, node.t),
+            };
+            transIdx = node.transIndex;
+          }
+          return {
+            config: node.cfg,
+            action,
+            branches,
+            transIndex: transIdx,
+          };
+        });
+        return { error: null, path: rich, explored: nodes.length, truncated, rejected: false, accepted: true };
+      }
+
+      const succs = getSuccessors(item.cfg);
+      for (const s of succs) {
+        tryEnqueue(s.next, idx, s.transIndex, s.t);
+      }
+    }
+
+    const failPath = [{
+      config: start,
+      action: { tags: [{ cls: 'tag-eps', text: 'Start' }], plain: 'Start' },
+      branches: getSuccessors(start).map(s => ({ cfg: s.next, desc: describeActionPlain(start, s.t) })),
+      transIndex: -1,
+    }];
+    return { error: null, path: failPath, explored: nodes.length, truncated, rejected: true, accepted: false };
+  }
+
+  function computeSimulation(inputStr) {
+    return runBFS2(inputStr);
+  }
+
+  // --- UI ---
+  const el = (id) => document.getElementById(id);
+
+  function renderStates() {
+    const wrap = el('statesBody');
+    wrap.innerHTML = '';
+    const activeNames = simPath && stepIndex < simPath.length ? [simPath[stepIndex].config.state] : [];
+    pda.states.forEach((s) => {
+      const row = document.createElement('div');
+      row.className = 'state-row' + (activeNames.includes(s.name) ? ' active-sim' : '');
+      const dotPulse = activeNames.includes(s.name) ? ' pulse' : '';
+      row.innerHTML = `
+        <div class="state-dot${dotPulse}"></div>
+        <div class="state-name-wrap"><input type="text" class="state-name-input" data-id="${s.id}" value="${escapeHtml(s.name)}" aria-label="State name" /></div>
+        <button type="button" class="badge-s ${s.isStart ? 'on' : ''}" data-act="start" data-id="${s.id}" title="Start">S</button>
+        <button type="button" class="badge-a ${s.isAccept ? 'on' : ''}" data-act="accept" data-id="${s.id}" title="Accept">A</button>
+        <div class="state-menu-wrap">
+          <button type="button" class="state-menu-btn" data-menu="${s.id}" aria-label="Menu">···</button>
+          <div class="state-dropdown" id="menu-${s.id}">
+            <button type="button" data-del="state" data-id="${s.id}">Delete state</button>
+          </div>
+        </div>`;
+      wrap.appendChild(row);
+    });
+    wrap.querySelectorAll('.state-name-input').forEach(inp => {
+      inp.addEventListener('change', () => {
+        const id = inp.dataset.id;
+        const st = pda.states.find(x => x.id === id);
+        if (st) st.name = inp.value.trim() || st.name;
+        savePDA(); renderTransitions(); renderDiagram();
+      });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') { e.target.blur(); }
+      });
+    });
+    wrap.querySelectorAll('[data-act="start"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        pda.states.forEach(s => { s.isStart = s.id === id; });
+        savePDA(); renderStates(); renderTransitions(); renderDiagram();
+      });
+    });
+    wrap.querySelectorAll('[data-act="accept"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        const st = pda.states.find(x => x.id === id);
+        if (st) st.isAccept = !st.isAccept;
+        savePDA(); renderStates(); renderDiagram();
+      });
+    });
+    wrap.querySelectorAll('.state-menu-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.menu;
+        const dd = el('menu-' + id);
+        document.querySelectorAll('.state-dropdown').forEach(d => { if (d !== dd) d.classList.remove('open'); });
+        dd.classList.toggle('open');
+      });
+    });
+    wrap.querySelectorAll('[data-del="state"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.dataset.id;
+        if (pda.states.length <= 1) return;
+        pda.states = pda.states.filter(x => x.id !== id);
+        if (!pda.states.some(s => s.isStart)) pda.states[0].isStart = true;
+        savePDA(); renderStates(); renderTransitions(); renderDiagram();
+      });
+    });
+  }
+
+  function stackSymbolsKnown() {
+    const s = new Set([Z0, ...(pda.stackAlphabet || [])]);
+    pda.transitions.forEach(t => {
+      s.add(t.stackTop);
+      normalizePush(t.push).forEach(x => s.add(x));
+    });
+    return s;
+  }
+
+  function transitionInvalid(t, idx) {
+    const names = new Set(pda.states.map(s => s.name));
+    if (!names.has(t.from) || !names.has(t.to)) return 'Unknown state';
+    const stackSyms = stackSymbolsKnown();
+    if (!stackSyms.has(t.stackTop)) return 'Unknown stack symbol';
+    for (const p of normalizePush(t.push)) {
+      if (!stackSyms.has(p)) return 'Unknown push symbol';
+    }
+    const inpOk = new Set(pda.inputAlphabet || []);
+    pda.transitions.forEach(x => {
+      if (x.input && x.input !== EPS && x.input !== '') inpOk.add(x.input);
+    });
+    if (t.input && t.input !== EPS && t.input !== '' && !inpOk.has(t.input)) return 'Input symbol not in alphabet';
+    return null;
+  }
+
+  function selectStateHtml(field, val, opts) {
+    let h = `<select data-f="${field}" class="trans-head-select">`;
+    opts.forEach(o => { h += `<option value="${escapeHtml(o)}" ${o === val ? 'selected' : ''}>${escapeHtml(o)}</option>`; });
+    h += '</select>';
+    return h;
+  }
+
+  function renderTransitions() {
+    const tbody = el('transBody');
+    tbody.innerHTML = '';
+    el('transCountPill').textContent = String(pda.transitions.length);
+    const names = allStateNames();
+    const activeTI = simPath && stepIndex > 0 && simPath[stepIndex] ? simPath[stepIndex].transIndex : -1;
+    pda.transitions.forEach((t, idx) => {
+      const card = document.createElement('div');
+      card.className = 'trans-card stagger-item';
+      card.dataset.transIndex = String(idx);
+      card.style.animationDelay = (idx * 30) + 'ms';
+      const inv = transitionInvalid(t, idx);
+      if (inv) { card.classList.add('invalid'); card.title = inv; }
+      if (hoveredTransIndex === idx) card.classList.add('hover-sync');
+      if (activeTI === idx) card.classList.add('active-step');
+      const inpVal = t.input && t.input !== EPS ? t.input : '';
+      const inpClass = !inpVal ? 'tin eps-input' : 'tin';
+      const inpPh = !inpVal ? 'ε' : '';
+      card.innerHTML = `
+        <div class="trans-card-head">
+          <span>${selectStateHtml('from', t.from, names)}<span class="arrow">→</span>${selectStateHtml('to', t.to, names)}</span>
+          <button type="button" class="trans-card-del" data-del="trans" data-idx="${idx}" aria-label="Delete transition">✕</button>
+        </div>
+        <div class="trans-fields">
+          <div class="tf"><label>Input</label><input type="text" class="${inpClass}" data-f="input" placeholder="${inpPh}" value="${escapeHtml(inpVal)}" title="ε if empty" /></div>
+          <div class="tf"><label>Stack top</label><input type="text" class="tst" data-f="stackTop" value="${escapeHtml(t.stackTop)}" /></div>
+          <div class="tf"><label>Push (top-first)</label><input type="text" class="tpu" data-f="push" value="${escapeHtml(serializePush(t.push))}" placeholder="ε" /></div>
+        </div>`;
+      tbody.appendChild(card);
+
+      card.querySelectorAll('select, input').forEach(elem => {
+        elem.addEventListener('change', () => updateTransRow(idx, card));
+        elem.addEventListener('input', () => updateTransRow(idx, card));
+      });
+      card.addEventListener('mouseenter', () => { hoveredTransIndex = idx; renderDiagramEdges(); });
+      card.addEventListener('mouseleave', () => { hoveredTransIndex = -1; renderDiagramEdges(); });
+    });
+  }
+
+  function updateTransRow(idx, card) {
+    const t = pda.transitions[idx];
+    const tin = card.querySelector('.tin');
+    const inp = tin.value.trim();
+    t.input = inp === '' ? '' : inp;
+    tin.classList.toggle('eps-input', !inp);
+    tin.placeholder = !inp ? 'ε' : '';
+    t.stackTop = card.querySelector('.tst').value.trim() || Z0;
+    t.from = card.querySelector('select[data-f="from"]').value;
+    t.to = card.querySelector('select[data-f="to"]').value;
+    t.push = parsePushStr(card.querySelector('.tpu').value);
+    savePDA();
+    const inv = transitionInvalid(t, idx);
+    card.classList.toggle('invalid', !!inv);
+    card.title = inv || '';
+    renderDiagram();
+  }
+
+  el('addState').onclick = () => {
+    const id = 's' + Math.random().toString(36).slice(2, 8);
+    pda.states.push({ id, name: 'q' + pda.states.length, isStart: false, isAccept: false });
+    savePDA();
+    renderStates(); renderTransitions(); renderDiagram();
+  };
+
+  el('addTrans').onclick = () => {
+    const names = allStateNames();
+    const a = names[0] || 'q0';
+    const b = names[1] || names[0] || 'q0';
+    pda.transitions.push({ from: a, input: '', stackTop: Z0, to: b, push: [] });
+    savePDA();
+    renderTransitions(); renderDiagram();
+  };
+
+  document.getElementById('transBody').addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-del="trans"]');
+    if (!btn) return;
+    const idx = +btn.dataset.idx;
+    pda.transitions.splice(idx, 1);
+    savePDA();
+    renderTransitions(); renderDiagram();
+  });
+
+  function escapeHtml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  let inputString = '';
+
+  function renderSimInput() {
+    const row = el('simTokenRow');
+    const posEl = el('simPosition');
+    const field = el('simInputField');
+    if (field && document.activeElement !== field) field.value = inputString;
+    const cons = inputString.length - (simPath && stepIndex < simPath.length ? simPath[stepIndex].config.remainingInput.length : inputString.length);
+    row.innerHTML = '';
+    for (let i = 0; i < inputString.length; i++) {
+      const span = document.createElement('span');
+      span.className = 'token-chip';
+      if (i < cons) span.classList.add('done');
+      else if (i === cons && simPath) span.classList.add('cur');
+      span.textContent = inputString[i];
+      row.appendChild(span);
+    }
+    if (!inputString.length) {
+      row.innerHTML = '<span style="color:var(--text-muted);font-style:italic;font-size:13px">No tokens yet — type below</span>';
+    }
+    const curPos = inputString.length ? Math.min(cons + 1, inputString.length) : 0;
+    posEl.textContent = inputString.length
+      ? `Position ${curPos} of ${inputString.length}`
+      : 'Position — of —';
+  }
+
+  function handleSimKeydown(e) {
+    if (e.key === 'Backspace') {
+      inputString = inputString.slice(0, -1);
+      e.preventDefault();
+    } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+      const ch = e.key;
+      if (!allowedInputChars().has(ch)) {
+        el('simTokenRow').classList.add('flash-invalid');
+        setTimeout(() => el('simTokenRow').classList.remove('flash-invalid'), 400);
+        e.preventDefault();
+        return;
+      }
+      inputString += ch;
+      e.preventDefault();
+    }
+    renderSimInput();
+  }
+
+  el('simTokenRow').addEventListener('keydown', handleSimKeydown);
+  el('simTokenRow').addEventListener('click', () => el('simInputField').focus());
+  el('simInputField').addEventListener('input', () => {
+    inputString = el('simInputField').value;
+    const bad = [...inputString].some(c => !allowedInputChars().has(c));
+    if (bad) {
+      el('simTokenRow').classList.add('flash-invalid');
+      setTimeout(() => el('simTokenRow').classList.remove('flash-invalid'), 400);
+      inputString = [...inputString].filter(c => allowedInputChars().has(c)).join('');
+      el('simInputField').value = inputString;
+    }
+    renderSimInput();
+  });
+  el('simInputField').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') { e.preventDefault(); el('btnRun').click(); }
+  });
+
+  function badgeFromTag(t) {
+    if (t.cls === 'tag-push') {
+      const sym = t.text.replace(/^Push\s*/, '');
+      return `<span class="badge-act push">↑ ${escapeHtml(sym)}</span>`;
+    }
+    if (t.cls === 'tag-pop') {
+      const sym = t.text.replace(/^Pop\s*/, '');
+      return `<span class="badge-act pop">↓ ${escapeHtml(sym)}</span>`;
+    }
+    if (t.cls === 'tag-eps') return `<span class="badge-act eps">ε</span>`;
+    if (t.cls === 'tag-cons') {
+      const sym = t.text.replace(/^consume\s*/, '');
+      return `<span class="badge-act cons">→ ${escapeHtml(sym)}</span>`;
+    }
+    if ((t.text || '').includes('Start')) return `<span class="badge-act start">● Start</span>`;
+    return `<span class="badge-act start">${escapeHtml(t.text)}</span>`;
+  }
+
+  function stackChipsHtml(stack) {
+    if (!stack || !stack.length) return '<span class="log-mono" style="color:var(--text-muted)">—</span>';
+    return stack.map(s => {
+      if (s === Z0) return `<span class="stack-inline-chip z0">${escapeHtml(s)}</span>`;
+      return `<span class="stack-inline-chip">${escapeHtml(s)}</span>`;
+    }).join('');
+  }
+
+  function renderLog() {
+    const tbody = el('logBody');
+    const badge = el('logStepBadge');
+    tbody.innerHTML = '';
+    if (!simPath) {
+      tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);padding:20px">Press Run or Step to simulate.</td></tr>';
+      badge.textContent = 'Step — / —';
+      return;
+    }
+    badge.textContent = 'Step ' + (stepIndex + 1) + ' / ' + simPath.length;
+    simPath.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      if (i === stepIndex) tr.classList.add('log-row-current');
+      const rem = row.config.remainingInput === '' ? '<span style="color:var(--text-muted)">∅</span>' : `<span class="log-mono">${escapeHtml(row.config.remainingInput)}</span>`;
+      const tags = (row.action.tags || []).map(badgeFromTag).join(' ');
+      tr.innerHTML = `<td class="log-mono">${i}</td><td class="log-mono">${escapeHtml(row.config.state)}</td><td>${rem}</td><td>${stackChipsHtml(row.config.stack)}</td><td>${tags || escapeHtml(row.action.plain)}</td>`;
+      tbody.appendChild(tr);
+    });
+    const cur = tbody.querySelector('.log-row-current');
+    if (cur) cur.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+    const activeTI = simPath && stepIndex > 0 && simPath[stepIndex] ? simPath[stepIndex].transIndex : -1;
+    document.querySelectorAll('.trans-card').forEach(card => {
+      const idx = +card.dataset.transIndex;
+      card.classList.toggle('active-step', idx === activeTI);
+    });
+
+    const br = el('branchArea');
+    br.innerHTML = '';
+    if (simPath[stepIndex]) {
+      const brs = simPath[stepIndex].branches || [];
+      if (brs.length > 1) {
+        const div = document.createElement('div');
+        div.className = 'branch-block';
+        div.innerHTML = '⑂ Nondeterministic branches: ' + brs.map(b => `${escapeHtml(b.desc)} → (${escapeHtml(b.cfg.state)}, ${escapeHtml(b.cfg.remainingInput)}, [${b.cfg.stack.join(',')}])`).join(' &nbsp;|&nbsp; ');
+        br.appendChild(div);
+      }
+    }
+  }
+
+  function renderStack() {
+    const cells = el('stackCells');
+    const cfg = simPath && simPath[stepIndex] ? simPath[stepIndex].config : null;
+    const stack = cfg ? cfg.stack.slice() : [];
+    el('stackDepth').textContent = String(stack.length);
+
+    const anim = stepDirection;
+    let oldS = null;
+    if (simPath && stepIndex >= 0) {
+      if (anim >= 0 && stepIndex > 0) oldS = simPath[stepIndex - 1].config.stack.slice();
+      else if (anim < 0 && stepIndex + 1 < simPath.length) oldS = simPath[stepIndex + 1].config.stack.slice();
+    }
+
+    cells.innerHTML = '';
+    if (!stack.length) {
+      const empty = document.createElement('div');
+      empty.className = 'stack-empty';
+      empty.textContent = 'Empty';
+      cells.appendChild(empty);
+      return;
+    }
+
+    let pushIdx = -1;
+    let popIdx = -1;
+    if (oldS) {
+      if (anim >= 0) {
+        if (stack.length > oldS.length) pushIdx = 0;
+        else if (stack.length < oldS.length) popIdx = 0;
+      } else {
+        if (stack.length > oldS.length) popIdx = 0;
+        else if (stack.length < oldS.length) pushIdx = 0;
+      }
+    }
+
+    stack.forEach((sym, i) => {
+      const div = document.createElement('div');
+      div.className = 'stack-cell' + (sym === Z0 ? ' z0' : '');
+      if (sym === Z0) {
+        div.innerHTML = `<span>${escapeHtml(sym)}</span><span class="z0-mark" title="Bottom of stack">⊥</span>`;
+      } else {
+        div.textContent = sym;
+      }
+      if (i === 0) div.style.borderWidth = '3px';
+
+      if (anim >= 0 && i === pushIdx) div.classList.add('push-anim');
+      else if (anim >= 0 && i === popIdx) div.classList.add('pop-anim');
+      else if (anim < 0 && i === pushIdx) div.classList.add('pop-rev');
+      else if (anim < 0 && i === popIdx) div.classList.add('push-out-rev');
+
+      cells.appendChild(div);
+    });
+
+    const icon = el('stackIconAnim');
+    if (icon && (pushIdx >= 0 || popIdx >= 0)) {
+      icon.classList.add('shuffle');
+      setTimeout(() => icon.classList.remove('shuffle'), 400);
+    }
+
+    const deepW = el('stackDeepWarn');
+    const ovf = el('stackOverflowBanner');
+    if (deepW) deepW.style.display = stack.length > 8 ? 'block' : 'none';
+    if (ovf) ovf.style.display = stack.length > 20 ? 'block' : 'none';
+
+    stepDirection = 1;
+  }
+
+  function setBanner(accepted, show, subtitle) {
+    const b = el('resultBanner');
+    if (!show) { b.classList.remove('show'); return; }
+    const sub = subtitle || '';
+    const head = accepted ? 'String Accepted' : 'String Rejected';
+    const icon = accepted
+      ? '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="check-anim" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 12l2.5 2.5L16 9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+      : '<span style="font-size:22px;line-height:1">✗</span>';
+    b.className = 'banner show ' + (accepted ? 'accept' : 'reject');
+    b.innerHTML = `${icon}<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:15px">${head}</div>${sub ? `<div class="banner-sub">${sub}</div>` : ''}</div><button type="button" class="banner-dismiss" aria-label="Dismiss">×</button>`;
+    b.querySelector('.banner-dismiss').onclick = () => { b.classList.remove('show'); };
+  }
+
+  function bannerSubtitle() {
+    if (!simPath || !simPath.length) return '';
+    const last = simPath[simPath.length - 1];
+    const st = last.config.state;
+    const n = Math.max(0, simPath.length - 1);
+    if (lastRunAccepted) return `Reached accept state <strong>${escapeHtml(st)}</strong> in ${n} step${n === 1 ? '' : 's'}.`;
+    return 'No accepting configuration with empty remaining input found.';
+  }
+
+  function applySimulationResult(r) {
+    lastRunAccepted = r.accepted === true;
+    el('bfsWarn').style.display = r.truncated ? 'block' : 'none';
+    el('bfsWarn').textContent = r.truncated
+      ? 'Search truncated after ' + BFS_CAP + ' configurations (possible ε-cycle). Result may be incomplete.'
+      : '';
+    if (r.error) {
+      simPath = null;
+      lastRunAccepted = false;
+      const b = el('resultBanner');
+      b.className = 'banner reject show';
+      b.innerHTML = `<span style="font-size:22px">✗</span><div style="flex:1"><div style="font-weight:600">${escapeHtml(String(r.error))}</div></div><button type="button" class="banner-dismiss" aria-label="Dismiss">×</button>`;
+      b.querySelector('.banner-dismiss').onclick = () => b.classList.remove('show');
+      return;
+    }
+    simPath = r.path;
+  }
+
+  function updateProgressBanner() {
+    const atEnd = simPath && stepIndex === simPath.length - 1;
+    setBanner(lastRunAccepted, !!atEnd, atEnd ? bannerSubtitle() : '');
+  }
+
+  function stepFwd() {
+    if (!simPath) {
+      const r = computeSimulation(inputString);
+      applySimulationResult(r);
+      if (r.error) {
+        renderLog(); renderSimInput(); renderStack(); renderDiagram();
+        return;
+      }
+      stepIndex = 0;
+      stepDirection = 1;
+      updateProgressBanner();
+      renderLog(); renderSimInput(); renderStack(); renderDiagram();
+      return;
+    }
+    stepDirection = 1;
+    if (stepIndex < simPath.length - 1) {
+      stepIndex++;
+      updateProgressBanner();
+      renderLog(); renderSimInput(); renderStack(); renderDiagram();
+    }
+  }
+
+  function stepBack() {
+    if (!simPath) return;
+    stepDirection = -1;
+    if (stepIndex > 0) {
+      stepIndex--;
+      updateProgressBanner();
+      renderLog(); renderSimInput(); renderStack(); renderDiagram();
+    }
+  }
+
+  function resetSim() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
+    simPath = null;
+    stepIndex = 0;
+    lastRunAccepted = false;
+    setBanner(false, false);
+    el('bfsWarn').style.display = 'none';
+    renderLog(); renderSimInput(); renderStack(); renderDiagram();
+  }
+
+  el('btnRun').onclick = () => {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
+    const r = computeSimulation(inputString);
+    applySimulationResult(r);
+    stepDirection = 1;
+    if (r.error) {
+      renderLog(); renderSimInput(); renderStack(); renderDiagram();
+      return;
+    }
+    if (el('autoRun').checked) {
+      const spd = Math.max(100, +el('speedRange').value);
+      let i = 0;
+      function autoTick() {
+        if (!simPath || i >= simPath.length) {
+          if (autoTimer) clearInterval(autoTimer);
+          autoTimer = null;
+          if (simPath && simPath.length) {
+            stepIndex = simPath.length - 1;
+            updateProgressBanner();
+            renderLog(); renderSimInput(); renderStack(); renderDiagram();
+          }
+          return;
+        }
+        stepIndex = i;
+        stepDirection = 1;
+        updateProgressBanner();
+        renderLog(); renderSimInput(); renderStack(); renderDiagram();
+        i++;
+      }
+      autoTick();
+      autoTimer = setInterval(autoTick, spd);
+    } else {
+      stepIndex = simPath.length - 1;
+      updateProgressBanner();
+      renderLog(); renderSimInput(); renderStack(); renderDiagram();
+    }
+  };
+
+  el('btnStep').onclick = stepFwd;
+  el('btnBack').onclick = stepBack;
+  el('btnReset').onclick = resetSim;
+
+  el('speedRange').oninput = () => {
+    el('speedLabel').textContent = el('speedRange').value;
+  };
+
+  document.addEventListener('keydown', (e) => {
+    const t = e.target;
+    const tag = t && t.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+    if (e.code === 'Space') { e.preventDefault(); stepFwd(); }
+    else if (e.key === 'r' || e.key === 'R') { e.preventDefault(); resetSim(); }
+    else if (e.key === 'Enter') { e.preventDefault(); el('btnRun').click(); }
+  });
+
+  el('btnTheme').onclick = () => showToast('Light mode coming soon', false);
+
+  function staggerTables() {
+    document.querySelectorAll('#statesBody .state-row, #transBody .trans-card').forEach((row, i) => {
+      row.style.animationDelay = (i * 30) + 'ms';
+      row.classList.add('stagger-item');
+    });
+  }
+
+  function wirePresetMenu() {
+    el('presetTrigger').addEventListener('click', (e) => {
+      e.stopPropagation();
+      el('presetMenu').classList.toggle('open');
+    });
+    el('presetMenu').addEventListener('click', (e) => {
+      const b = e.target.closest('[data-preset]');
+      if (!b) return;
+      const v = b.getAttribute('data-preset');
+      if (!v || !PRESETS[v]) return;
+      el('presetMenu').classList.remove('open');
+      el('presetTriggerLabel').textContent = PRESET_META[v] ? PRESET_META[v].title : v;
+      flashSkeleton();
+      pda = PRESETS[v]();
+      savePDA();
+      staggerTables();
+      renderStates(); renderTransitions(); renderDiagram(); resetSim();
+    });
+  }
+
+  // Import / Export
+  el('btnExport').onclick = () => {
+    const blob = new Blob([JSON.stringify(pda, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'pda.json';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  el('btnImport').onclick = () => el('fileImport').click();
+  el('fileImport').onchange = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        pda = JSON.parse(r.result);
+        savePDA();
+        renderStates(); renderTransitions(); renderDiagram(); resetSim();
+        showToast('PDA definition imported successfully', true);
+      } catch (_) { showToast('Invalid JSON file', false); }
+    };
+    r.readAsText(f);
+    e.target.value = '';
+  };
+
+  // Tabs mobile
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.dataset.tab;
+      document.querySelectorAll('[data-panel]').forEach(p => {
+        p.style.display = (p.dataset.panel === tab) ? '' : 'none';
+      });
+      document.querySelector('[data-panel="' + tab + '"]').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+  if (window.innerWidth < 1280) {
+    document.querySelectorAll('[data-panel]').forEach(p => {
+      if (p.dataset.panel !== 'def') p.style.display = 'none';
+    });
+  }
+
+  // --- Diagram ---
+  const svg = el('diagramSvg');
+  const edgesG = el('edgesGroup');
+  const nodesG = el('nodesGroup');
+
+  function ensurePos(name) {
+    if (!nodePositions[name]) {
+      const i = allStateNames().indexOf(name);
+      nodePositions[name] = { x: 120 + (i % 4) * 140, y: 80 + Math.floor(i / 4) * 100 };
+    }
+    return nodePositions[name];
+  }
+
+  function renderDiagram() {
+    const names = allStateNames();
+    const emptyEl = el('diagramEmpty');
+    if (emptyEl) emptyEl.style.display = names.length === 0 ? 'flex' : 'none';
+    const mm = el('diagramMinimap');
+    if (mm) mm.style.display = names.length >= 6 ? 'block' : 'none';
+
+    const pg = el('panGroup');
+    if (pg) pg.setAttribute('transform', `translate(${diagramPan.x},${diagramPan.y}) scale(${diagramZoom})`);
+
+    names.forEach(ensurePos);
+    nodesG.innerHTML = '';
+    edgesG.innerHTML = '';
+
+    const activeStates = new Set();
+    const visitedStates = new Set();
+    const usedTrans = new Set();
+    if (simPath && simPath[stepIndex]) activeStates.add(simPath[stepIndex].config.state);
+    if (simPath) {
+      for (let i = 0; i <= stepIndex && i < simPath.length; i++) visitedStates.add(simPath[i].config.state);
+      for (let i = 1; i <= stepIndex && i < simPath.length; i++) {
+        const ti = simPath[i].transIndex;
+        if (ti >= 0) usedTrans.add(ti);
+      }
+    }
+
+    names.forEach(name => {
+      const st = stateByName(name);
+      const p = ensurePos(name);
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      let cls = 'node';
+      if (st && st.isAccept) cls += ' accept';
+      if (activeStates.has(name)) cls += ' active';
+      else if (visitedStates.has(name)) cls += ' visited';
+      if (st && st.isStart) cls += ' start';
+      g.setAttribute('class', cls);
+      g.setAttribute('transform', `translate(${p.x},${p.y})`);
+      g.dataset.stateName = name;
+
+      if (st && st.isAccept) {
+        const c1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c1.setAttribute('class', 'outer');
+        c1.setAttribute('r', '24');
+        const c2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c2.setAttribute('class', 'inner');
+        c2.setAttribute('r', '18');
+        c2.setAttribute('fill', '#181c24');
+        g.appendChild(c1);
+        g.appendChild(c2);
+      } else {
+        const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        c.setAttribute('r', '22');
+        g.appendChild(c);
+      }
+
+      const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      tx.setAttribute('text-anchor', 'middle');
+      tx.setAttribute('dy', '5');
+      tx.setAttribute('font-size', '13');
+      tx.setAttribute('font-weight', '600');
+      tx.textContent = name;
+      g.appendChild(tx);
+
+      if (st && st.isStart) {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '-44');
+        line.setAttribute('y1', '0');
+        line.setAttribute('x2', '-26');
+        line.setAttribute('y2', '0');
+        line.setAttribute('stroke', '#5b8af5');
+        line.setAttribute('stroke-width', '2');
+        line.setAttribute('marker-end', 'url(#arrowheadActive)');
+        g.insertBefore(line, g.firstChild);
+      }
+
+      const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+      const outCount = pda.transitions.filter(t => t.from === name).length;
+      title.textContent = `${name}${st && st.isStart ? ' · start' : ''}${st && st.isAccept ? ' · accept' : ''} · ${outCount} outgoing`;
+      g.appendChild(title);
+
+      g.addEventListener('mousedown', (e) => { e.stopPropagation(); dragStart(e); });
+      nodesG.appendChild(g);
+    });
+
+    renderDiagramEdges(usedTrans);
+    drawMinimap(names);
+  }
+
+  function edgeLabelText(t) {
+    const ins = !t.input || t.input === '' || t.input === EPS ? 'ε' : t.input;
+    const push = normalizePush(t.push);
+    const pushStr = push.length ? push.join('') : 'ε';
+    return ins + ', ' + t.stackTop + ' / ' + pushStr;
+  }
+
+  function renderDiagramEdges(usedTrans) {
+    const existing = svg.querySelectorAll('.edge-g');
+    existing.forEach(e => e.remove());
+    if (!usedTrans && simPath) {
+      usedTrans = new Set();
+      for (let i = 1; i <= stepIndex && i < simPath.length; i++) {
+        const ti = simPath[i].transIndex;
+        if (ti >= 0) usedTrans.add(ti);
+      }
+    }
+    usedTrans = usedTrans || new Set();
+
+    const pos = (n) => ensurePos(n);
+    const groups = new Map();
+    pda.transitions.forEach((t, idx) => {
+      const key = t.from + '->' + t.to;
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push({ t, idx });
+    });
+
+    groups.forEach((list) => {
+      list.forEach((item, j) => {
+        const { t, idx } = item;
+        const p1 = pos(t.from);
+        const p2 = pos(t.to);
+        const fan = (j - (list.length - 1) / 2) * 16;
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.setAttribute('class', 'edge-g');
+        g.dataset.transIndex = String(idx);
+
+        let d;
+        if (t.from === t.to) {
+          const cy = p1.y - 32 - Math.abs(fan);
+          d = `M ${p1.x + 20} ${p1.y - 6} Q ${p1.x + 48 + fan} ${cy} ${p1.x} ${p1.y - 24}`;
+        } else {
+          const mx = (p1.x + p2.x) / 2 + fan;
+          const my = (p1.y + p2.y) / 2 - 44 - Math.abs(fan) * 0.5;
+          d = `M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`;
+        }
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const activeTI = simPath && stepIndex > 0 && simPath[stepIndex] ? simPath[stepIndex].transIndex : -1;
+        const isAct = hoveredTransIndex === idx || activeTI === idx;
+        let pcls = 'edge-path';
+        if (isAct) pcls += ' highlight dash-anim';
+        else if (usedTrans.has(idx)) pcls += ' used';
+        path.setAttribute('class', pcls);
+        path.setAttribute('d', d);
+        if (isAct) path.setAttribute('marker-end', 'url(#arrowheadActive)');
+        else path.setAttribute('marker-end', 'url(#arrowhead)');
+
+        const mid = t.from === t.to ? { x: p1.x + 28, y: p1.y - 42 - Math.abs(fan) * 0.15 } : {
+          x: (p1.x + p2.x) / 2 + fan * 0.35,
+          y: (p1.y + p2.y) / 2 - 28 - Math.abs(fan) * 0.35,
+        };
+        const label = edgeLabelText(t);
+        const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
+        fo.setAttribute('x', mid.x - 52);
+        fo.setAttribute('y', mid.y - 14);
+        fo.setAttribute('width', '104');
+        fo.setAttribute('height', '30');
+        const div = document.createElement('div');
+        div.style.cssText = 'font-size:11px;font-family:ui-monospace,monospace;text-align:center;background:#111318;border:1px solid #2a2f3d;border-radius:6px;padding:3px 6px;color:#e8eaf0;';
+        const isE = !t.input || t.input === '';
+        div.innerHTML = isE
+          ? `<span style="color:#f5a623;font-style:italic">ε</span>, ${escapeHtml(t.stackTop)} / ${escapeHtml(normalizePush(t.push).join('') || 'ε')}`
+          : escapeHtml(label);
+        fo.appendChild(div);
+
+        g.appendChild(path);
+        g.appendChild(fo);
+        edgesG.appendChild(g);
+      });
+    });
+  }
+
+  function drawMinimap(names) {
+    const canvas = el('diagramMinimap');
+    if (!canvas || names.length < 6) return;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, 120, 80);
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    names.forEach(n => {
+      const p = ensurePos(n);
+      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+    });
+    const pad = 40;
+    const dx = (maxX - minX) + pad * 2 || 1;
+    const dy = (maxY - minY) + pad * 2 || 1;
+    names.forEach(n => {
+      const p = ensurePos(n);
+      const nx = ((p.x - minX + pad) / dx) * 108 + 6;
+      const ny = ((p.y - minY + pad) / dy) * 64 + 8;
+      ctx.fillStyle = 'rgba(91,138,245,0.75)';
+      ctx.beginPath();
+      ctx.arc(nx, ny, 3, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  let dragState = null;
+  function dragStart(e) {
+    const name = e.currentTarget.dataset.stateName;
+    if (!name) return;
+    dragState = { name, sx: e.clientX, sy: e.clientY, ...ensurePos(name) };
+    window.addEventListener('mousemove', dragMove);
+    window.addEventListener('mouseup', dragEnd);
+  }
+  function dragMove(e) {
+    if (!dragState) return;
+    const dx = e.clientX - dragState.sx;
+    const dy = e.clientY - dragState.sy;
+    nodePositions[dragState.name] = { x: dragState.x + dx, y: dragState.y + dy };
+    renderDiagram();
+  }
+  function dragEnd() {
+    if (dragState) savePositions();
+    dragState = null;
+    window.removeEventListener('mousemove', dragMove);
+    window.removeEventListener('mouseup', dragEnd);
+  }
+
+  el('btnAutoLayout').onclick = () => {
+    const names = allStateNames();
+    if (!names.length) return;
+    const cx = (svg.clientWidth || 800) / 2;
+    const cy = (svg.clientHeight || 320) / 2;
+    const radius = Math.min(160, 36 + names.length * 14);
+    const target = {};
+    names.forEach((name, i) => {
+      const ang = (i / names.length) * Math.PI * 2 - Math.PI / 2;
+      target[name] = { x: cx + radius * Math.cos(ang), y: cy + radius * Math.sin(ang) };
+    });
+    const start = {};
+    names.forEach(n => { start[n] = { ...ensurePos(n) }; });
+    let layoutStart = null;
+    function ease(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+    function layoutFrame(now) {
+      if (layoutStart === null) layoutStart = now;
+      const u = ease(Math.min(1, (now - layoutStart) / 600));
+      names.forEach(n => {
+        const s0 = start[n];
+        const t1 = target[n];
+        nodePositions[n] = { x: s0.x + (t1.x - s0.x) * u, y: s0.y + (t1.y - s0.y) * u };
+      });
+      renderDiagram();
+      if (u < 1) requestAnimationFrame(layoutFrame);
+      else savePositions();
+    }
+    requestAnimationFrame(layoutFrame);
+  };
+
+  el('diagramZoomIn').onclick = () => {
+    diagramZoom = Math.min(2.5, diagramZoom * 1.15);
+    renderDiagram();
+  };
+  el('diagramZoomOut').onclick = () => {
+    diagramZoom = Math.max(0.3, diagramZoom / 1.15);
+    renderDiagram();
+  };
+
+  let viewPan = null;
+  el('diagramViewport').addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const z = e.deltaY < 0 ? 1.08 : 1 / 1.08;
+    diagramZoom = Math.max(0.25, Math.min(2.5, diagramZoom * z));
+    renderDiagram();
+  }, { passive: false });
+  el('diagramViewport').addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest && e.target.closest('.node')) return;
+    viewPan = { cx: e.clientX, cy: e.clientY, ox: diagramPan.x, oy: diagramPan.y };
+  });
+  window.addEventListener('mousemove', (e) => {
+    if (!viewPan) return;
+    diagramPan.x = viewPan.ox + (e.clientX - viewPan.cx);
+    diagramPan.y = viewPan.oy + (e.clientY - viewPan.cy);
+    const pg = el('panGroup');
+    if (pg) pg.setAttribute('transform', `translate(${diagramPan.x},${diagramPan.y}) scale(${diagramZoom})`);
+  });
+  window.addEventListener('mouseup', () => { viewPan = null; });
+
+  window.addEventListener('resize', () => renderDiagram());
+
+  document.addEventListener('click', () => {
+    const pm = el('presetMenu');
+    if (pm) pm.classList.remove('open');
+    document.querySelectorAll('.state-dropdown').forEach(d => d.classList.remove('open'));
+  });
+
+  buildPresetMenu();
+  wirePresetMenu();
+
+  // Init
+  renderStates();
+  renderTransitions();
+  renderDiagram();
+  renderLog();
+  renderSimInput();
+  renderStack();
+})();
+  </script>
+</body>
+</html>
