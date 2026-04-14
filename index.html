@@ -200,10 +200,10 @@
     }
     .btn-icon-round:hover { background: var(--coral-light); box-shadow: 0 0 0 2px var(--coral-glow); }
 
-    /* Desktop: row1 = Definition | Simulation; row2 = Stack | Diagram; row3 = tests — wider/right column for diagram + sim */
+    /* Desktop: col1 = Definition + Stack; col2 = Simulation + diagram + trace (one tall column); row3 = tests */
     .app-main {
       display: grid;
-      grid-template-columns: minmax(260px, 0.38fr) minmax(300px, 0.62fr);
+      grid-template-columns: minmax(260px, 0.34fr) minmax(320px, 0.66fr);
       grid-template-rows: minmax(0, 0.96fr) minmax(0, 1.04fr) auto;
       gap: 22px;
       padding: 22px 26px 26px;
@@ -224,30 +224,68 @@
     }
     #panelSim {
       grid-column: 2;
-      grid-row: 1;
+      grid-row: 1 / 3;
       min-height: 0;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
-    .sim-controls-block {
-      flex: 0 0 auto;
-      overflow-y: auto;
-      overflow-x: hidden;
-      max-height: min(44vh, 480px);
-      padding-right: 4px;
-    }
-    .sim-trace-block {
+    .sim-work-column {
       flex: 1 1 auto;
-      min-height: 140px;
-      overflow-y: auto;
-      overflow-x: hidden;
+      min-height: 0;
       display: flex;
       flex-direction: column;
-      margin-top: 6px;
-      padding-top: 18px;
+      overflow: hidden;
+      gap: 0;
+    }
+    .sim-input-section {
+      flex: 0 1 auto;
+      max-height: min(36vh, 400px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding-right: 4px;
+    }
+    .sim-run-section {
+      flex: 0 0 auto;
+      padding-top: 12px;
+      margin-top: 8px;
       border-top: 1px solid var(--border-dim);
     }
+    .diagram-in-sim {
+      flex: 1 1 auto;
+      min-height: min(52vh, 720px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding-top: 14px;
+      margin-top: 6px;
+      border-top: 1px solid var(--border-dim);
+      min-width: 0;
+    }
+    .diagram-in-sim .diagram-toolbar { margin-bottom: 8px; flex-shrink: 0; }
+    .diagram-in-sim .diagram-legend { margin-bottom: 10px; flex-shrink: 0; }
+    .diagram-in-sim .diagram-viewport {
+      flex: 1 1 auto;
+      min-height: min(44vh, 560px);
+      height: auto;
+      max-height: none;
+    }
+    .sim-trace-block {
+      flex: 0 1 32vh;
+      max-height: min(34vh, 380px);
+      min-height: 120px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border-dim);
+    }
+    .sim-trace-block .step-explain-card { flex: 0 0 auto; max-height: 42%; overflow: auto; }
+    .sim-trace-block .log-header-row { flex: 0 0 auto; }
+    .sim-trace-block .log-table-wrap { flex: 1 1 auto; min-height: 0; }
+    .sim-trace-block .comp-tree-view,
+    .sim-trace-block #branchArea { flex: 0 0 auto; }
     #panelStack {
       grid-column: 1;
       grid-row: 2;
@@ -277,8 +315,7 @@
       }
       #panelDef,
       #panelSim,
-      #panelStack,
-      .diagram-card {
+      #panelStack {
         grid-column: 1;
         grid-row: auto;
         overflow: visible;
@@ -287,13 +324,30 @@
         display: block;
         overflow: visible;
       }
-      .sim-controls-block {
+      .sim-work-column {
+        overflow: visible;
+        min-height: 0;
+      }
+      .sim-input-section {
         max-height: none;
         overflow: visible;
         padding-right: 0;
       }
+      .diagram-in-sim {
+        min-height: 420px;
+        overflow: visible;
+      }
+      .diagram-in-sim .diagram-viewport {
+        min-height: 400px;
+      }
+      .sim-run-section {
+        border-top: none;
+        margin-top: 0;
+        padding-top: 0;
+      }
       .sim-trace-block {
         flex: none;
+        max-height: none;
         min-height: 0;
         overflow: visible;
         margin-top: 0;
@@ -940,7 +994,31 @@
       color: var(--amber);
     }
 
-    .log-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+    .log-header-row { display: flex; flex-direction: column; align-items: stretch; gap: 10px; margin-top: 4px; margin-bottom: 12px; }
+    .log-header-main { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; width: 100%; }
+    .log-header-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-left: auto; }
+    .log-trace-nav { display: inline-flex; gap: 6px; align-items: center; }
+    .btn-log-step {
+      font-family: var(--font-sans);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn-log-step:hover:not(:disabled) {
+      background: var(--bg-hover);
+      border-color: var(--border-bright);
+      color: var(--navy);
+    }
+    .btn-log-step:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
     .log-step-badge {
       font-size: 12px;
       font-weight: 600;
@@ -961,9 +1039,9 @@
     }
     @media (min-width: 1280px) {
       .log-table-wrap {
-        max-height: none;
+        max-height: min(28vh, 300px);
         flex: 1 1 auto;
-        min-height: 160px;
+        min-height: 140px;
       }
     }
     .log-table-wrap::before {
@@ -1280,15 +1358,6 @@
     .stack-overflow-banner { margin-top: 8px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--rose-light); border: 1px solid var(--rose); color: var(--rose); font-size: 12px; }
 
     /* Diagram */
-    .diagram-card {
-      grid-column: 2;
-      grid-row: 2;
-      padding: 20px 22px 22px;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
     .diagram-toolbar {
       display: flex;
       justify-content: space-between;
@@ -1414,8 +1483,8 @@
       position: relative;
       width: 100%;
       flex: 1 1 auto;
-      min-height: 260px;
-      height: 400px;
+      min-height: 280px;
+      height: 420px;
       border: 1px solid var(--border-dim);
       border-radius: var(--radius-md);
       background-color: var(--workspace-inset);
@@ -1428,16 +1497,10 @@
       .diagram-viewport {
         height: auto;
         max-height: none;
-        min-height: 340px;
+        min-height: 300px;
       }
     }
     @media (max-width: 1279px) {
-      .diagram-card {
-        grid-column: 1 / -1;
-        grid-row: auto;
-        display: block;
-        overflow: visible;
-      }
       .diagram-viewport {
         flex: none;
         height: 400px;
@@ -2183,9 +2246,10 @@
     </section>
 
     <section class="card card-stagger-in" id="panelSim" data-panel="sim" style="animation-delay:80ms">
-      <div class="section-head states"><span class="accent-bar"></span> Simulation</div>
-      <p class="section-sub">Type an input string, then run or step to watch how your PDA behaves.</p>
-      <div class="sim-controls-block">
+      <div class="section-head states"><span class="accent-bar"></span> Simulation &amp; state diagram</div>
+      <p class="section-sub">Input string, graph, run controls, and step log live together in this column. On small screens, use the <strong>Diagram</strong> tab to jump to the graph.</p>
+      <div class="sim-work-column">
+        <div class="sim-input-section">
       <div id="firstLoadCard" class="first-load-card" style="display:none" aria-hidden="true">
         <h2>Start with a preset, or build your own PDA</h2>
         <div class="first-load-actions">
@@ -2222,105 +2286,8 @@
         <div class="smart-hint" id="smartHint" style="display:none"></div>
       </div>
       <div class="sim-position" id="simPosition">Position &mdash; of &mdash;</div>
-      <div class="sim-step-label" style="margin-top:12px">Step 2 &mdash; run the simulation</div>
-      <div class="controls-row">
-        <button type="button" id="btnReset" class="btn-reset">Reset <span class="kbd">R</span></button>
-        <button type="button" id="btnBack" class="btn-step">&larr; Step back</button>
-        <button type="button" id="btnStep" class="btn-step">Step forward <span class="kbd">Space</span></button>
-        <button type="button" id="btnRun" class="btn-run" title="">Run all <span class="kbd">Enter</span></button>
-      </div>
-      <div class="speed-row">
-        <span style="color:var(--text-muted);font-size:var(--text-sm);font-family:var(--font-ui)">Speed</span>
-        <input type="range" id="speedRange" min="100" max="2000" step="50" value="500" />
-        <span id="speedLabel" style="font-family:var(--font-mono);font-size:var(--text-sm);color:var(--text-secondary)">500ms</span>
-        <label class="auto-run-label"><input type="checkbox" id="autoRun" /> Auto-step while running</label>
-      </div>
-      <div id="resultBanner" class="banner" role="status"></div>
-      <div id="bfsWarn" class="warn-box" style="display:none"></div>
-      </div>
-      <div class="sim-trace-block">
-      <div class="step-explain-card" id="stepExplainCard">
-        <div class="step-explain-toolbar">
-          <span class="step-explain-kicker">Step narration</span>
-          <label class="step-explain-toggle"><input type="checkbox" id="chkStepNarration" checked /> Show plain-English steps</label>
         </div>
-        <div class="step-explain-panel" id="stepExplainPanel">
-          <div class="step-explain-head" id="stepExplainHead">What just happened?</div>
-          <div class="step-explain-sub" id="stepExplainSub"></div>
-          <div class="step-explain-body" id="stepExplainBody">Run or step the simulation to see a narration of each transition.</div>
-          <div class="step-explain-nav">
-            <button type="button" id="btnExplainPrev" disabled>&larr; Previous explanation</button>
-            <button type="button" id="btnExplainNext" disabled>Next explanation &rarr;</button>
-          </div>
-        </div>
-      </div>
-      <div class="log-header-row">
-        <div class="section-head states" style="margin:0"><span class="accent-bar"></span> Trace</div>
-        <div class="sim-view-toggle" role="tablist">
-          <button type="button" class="active" id="btnViewLog" role="tab" aria-selected="true">Step log</button>
-          <button type="button" id="btnViewTree" role="tab" aria-selected="false">Computation tree</button>
-        </div>
-        <span class="log-step-badge" id="logStepBadge">Step &mdash; / &mdash;</span>
-      </div>
-      <div class="log-table-wrap" id="logWrap">
-        <table class="log-table">
-          <thead>
-            <tr>
-              <th><span class="th-label" title="Zero-based index of this configuration in the trace.">Step</span></th>
-              <th><span class="th-label" title="Current finite control state.">State</span></th>
-              <th><span class="th-label" title="Characters in the input string not yet consumed.">Remaining</span></th>
-              <th><span class="th-label" title="Full stack contents; leftmost symbol is on top.">Stack (top&rarr;bottom)</span></th>
-              <th><span class="th-label" title="What happened at this step: read, epsilon, push, or pop.">Action</span></th>
-            </tr>
-          </thead>
-          <tbody id="logBody"></tbody>
-        </table>
-      </div>
-      <div id="compTreeHost" class="comp-tree-view" style="display:none" aria-live="polite"></div>
-      <div id="branchArea"></div>
-      </div>
-    </section>
-
-    <section class="card stack-panel card-stagger-in" id="panelStack" data-panel="stack" style="animation-delay:160ms">
-      <div id="spotlightStack">
-        <div class="stack-head-row">
-          <span class="accent-bar"></span>
-          <div>
-            <span class="stack-label">Stack</span>
-            <p class="section-sub" style="margin:6px 0 0;text-transform:none;letter-spacing:0">The automaton&rsquo;s memory. Symbols are pushed and popped from the <strong>top</strong> only.</p>
-          </div>
-          <svg class="stack-icon-anim" id="stackIconAnim" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-            <rect class="bar1" x="4" y="16" width="16" height="3" rx="1" fill="#9f7aea"/>
-            <rect class="bar2" x="6" y="10" width="12" height="3" rx="1" fill="#a8ff3e"/>
-            <rect class="bar3" x="8" y="4" width="8" height="3" rx="1" fill="#555555"/>
-          </svg>
-        </div>
-        <div class="stack-legend" id="stackLegend">
-          <span>&darr; symbols enter here</span>
-          <pre>+----------+  &lt;- TOP
-|   A      |
-|   Z0 |  bottom marker
-+----------+
-^ symbols enter from top</pre>
-        </div>
-        <div class="stack-visual" id="stackVisual">
-          <div class="stack-top-rail" id="stackTopRail" style="display:none">TOP</div>
-          <div class="stack-spine"></div>
-          <div class="stack-main">
-            <div class="stack-arrow"><span class="learn-term">Stack top<span class="learn-tip">The top of the stack is the only symbol you read or replace on a transition.</span></span></div>
-            <div class="stack-cells" id="stackCells"></div>
-          </div>
-        </div>
-        <div class="stack-depth-row" id="stackMetaRow">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-muted)"><rect x="3" y="14" width="18" height="6" rx="1"/><rect x="5" y="8" width="14" height="5" rx="1"/><rect x="7" y="3" width="10" height="4" rx="1"/></svg>
-          <span id="stackMetaText">Depth: <strong id="stackDepth" style="color:var(--text-secondary)">0</strong> cells</span>
-        </div>
-      </div>
-      <p id="stackDeepWarn" style="display:none;font-size:11px;color:var(--amber);margin:6px 0 0">Stack growing deep</p>
-      <div id="stackOverflowBanner" class="stack-overflow-banner" style="display:none">Stack depth exceeds 20 &mdash; check for loops.</div>
-    </section>
-
-    <section class="card diagram-card card-stagger-in" id="panelDiagram" data-panel="diagram" style="animation-delay:240ms">
+        <div class="diagram-in-sim" id="diagramPanelAnchor" aria-label="State diagram">
       <div class="diagram-toolbar">
         <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
           <div class="section-head states" style="margin:0"><span class="accent-bar"></span> State diagram</div>
@@ -2377,6 +2344,113 @@
         </svg>
         <canvas class="minimap" id="diagramMinimap" width="120" height="80" style="display:none"></canvas>
       </div>
+        </div>
+        <div class="sim-run-section">
+      <div class="sim-step-label" style="margin-top:4px">Step 2 &mdash; run the simulation</div>
+      <div class="controls-row">
+        <button type="button" id="btnReset" class="btn-reset">Reset <span class="kbd">R</span></button>
+        <button type="button" id="btnBack" class="btn-step">&larr; Step back</button>
+        <button type="button" id="btnStep" class="btn-step">Step forward <span class="kbd">Space</span></button>
+        <button type="button" id="btnRun" class="btn-run" title="">Run all <span class="kbd">Enter</span></button>
+      </div>
+      <div class="speed-row">
+        <span style="color:var(--text-muted);font-size:var(--text-sm);font-family:var(--font-ui)">Speed</span>
+        <input type="range" id="speedRange" min="100" max="2000" step="50" value="500" />
+        <span id="speedLabel" style="font-family:var(--font-mono);font-size:var(--text-sm);color:var(--text-secondary)">500ms</span>
+        <label class="auto-run-label"><input type="checkbox" id="autoRun" /> Auto-step while running</label>
+      </div>
+      <div id="resultBanner" class="banner" role="status"></div>
+      <div id="bfsWarn" class="warn-box" style="display:none"></div>
+        </div>
+      <div class="sim-trace-block">
+      <div class="step-explain-card" id="stepExplainCard">
+        <div class="step-explain-toolbar">
+          <span class="step-explain-kicker">Step narration</span>
+          <label class="step-explain-toggle"><input type="checkbox" id="chkStepNarration" checked /> Show plain-English steps</label>
+        </div>
+        <div class="step-explain-panel" id="stepExplainPanel">
+          <div class="step-explain-head" id="stepExplainHead">What just happened?</div>
+          <div class="step-explain-sub" id="stepExplainSub"></div>
+          <div class="step-explain-body" id="stepExplainBody">Run or step the simulation to see a narration of each transition.</div>
+          <div class="step-explain-nav">
+            <button type="button" id="btnExplainPrev" disabled>&larr; Previous explanation</button>
+            <button type="button" id="btnExplainNext" disabled>Next explanation &rarr;</button>
+          </div>
+        </div>
+      </div>
+      <div class="log-header-row">
+        <div class="log-header-main">
+          <div class="section-head states" style="margin:0"><span class="accent-bar"></span> Trace</div>
+          <div class="log-header-actions">
+            <div class="log-trace-nav">
+              <button type="button" class="btn-log-step" id="btnTracePrev" title="Previous step (same as Step back)">&larr; Prev step</button>
+              <button type="button" class="btn-log-step" id="btnTraceNext" title="Next step (same as Step forward)">Next step &rarr;</button>
+            </div>
+            <div class="sim-view-toggle" role="tablist">
+              <button type="button" class="active" id="btnViewLog" role="tab" aria-selected="true">Step log</button>
+              <button type="button" id="btnViewTree" role="tab" aria-selected="false">Computation tree</button>
+            </div>
+            <span class="log-step-badge" id="logStepBadge">Step &mdash; / &mdash;</span>
+          </div>
+        </div>
+      </div>
+      <div class="log-table-wrap" id="logWrap">
+        <table class="log-table">
+          <thead>
+            <tr>
+              <th><span class="th-label" title="Zero-based index of this configuration in the trace.">Step</span></th>
+              <th><span class="th-label" title="Current finite control state.">State</span></th>
+              <th><span class="th-label" title="Characters in the input string not yet consumed.">Remaining</span></th>
+              <th><span class="th-label" title="Full stack contents; leftmost symbol is on top.">Stack (top&rarr;bottom)</span></th>
+              <th><span class="th-label" title="What happened at this step: read, epsilon, push, or pop.">Action</span></th>
+            </tr>
+          </thead>
+          <tbody id="logBody"></tbody>
+        </table>
+      </div>
+      <div id="compTreeHost" class="comp-tree-view" style="display:none" aria-live="polite"></div>
+      <div id="branchArea"></div>
+      </div>
+      </div>
+    </section>
+
+    <section class="card stack-panel card-stagger-in" id="panelStack" data-panel="stack" style="animation-delay:160ms">
+      <div id="spotlightStack">
+        <div class="stack-head-row">
+          <span class="accent-bar"></span>
+          <div>
+            <span class="stack-label">Stack</span>
+            <p class="section-sub" style="margin:6px 0 0;text-transform:none;letter-spacing:0">The automaton&rsquo;s memory. Symbols are pushed and popped from the <strong>top</strong> only.</p>
+          </div>
+          <svg class="stack-icon-anim" id="stackIconAnim" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
+            <rect class="bar1" x="4" y="16" width="16" height="3" rx="1" fill="#9f7aea"/>
+            <rect class="bar2" x="6" y="10" width="12" height="3" rx="1" fill="#a8ff3e"/>
+            <rect class="bar3" x="8" y="4" width="8" height="3" rx="1" fill="#555555"/>
+          </svg>
+        </div>
+        <div class="stack-legend" id="stackLegend">
+          <span>&darr; symbols enter here</span>
+          <pre>+----------+  &lt;- TOP
+|   A      |
+|   Z0 |  bottom marker
++----------+
+^ symbols enter from top</pre>
+        </div>
+        <div class="stack-visual" id="stackVisual">
+          <div class="stack-top-rail" id="stackTopRail" style="display:none">TOP</div>
+          <div class="stack-spine"></div>
+          <div class="stack-main">
+            <div class="stack-arrow"><span class="learn-term">Stack top<span class="learn-tip">The top of the stack is the only symbol you read or replace on a transition.</span></span></div>
+            <div class="stack-cells" id="stackCells"></div>
+          </div>
+        </div>
+        <div class="stack-depth-row" id="stackMetaRow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="var(--text-muted)"><rect x="3" y="14" width="18" height="6" rx="1"/><rect x="5" y="8" width="14" height="5" rx="1"/><rect x="7" y="3" width="10" height="4" rx="1"/></svg>
+          <span id="stackMetaText">Depth: <strong id="stackDepth" style="color:var(--text-secondary)">0</strong> cells</span>
+        </div>
+      </div>
+      <p id="stackDeepWarn" style="display:none;font-size:11px;color:var(--amber);margin:6px 0 0">Stack growing deep</p>
+      <div id="stackOverflowBanner" class="stack-overflow-banner" style="display:none">Stack depth exceeds 20 &mdash; check for loops.</div>
     </section>
 
     <details class="test-suite-wide" id="testSuiteWide">
@@ -2697,7 +2771,8 @@
   const SPOTLIGHT_STEPS = [
     { sel: '#spotlightStates', text: 'States are the automaton\'s positions. Every PDA needs at least one start state and one accept state. Add them here.' },
     { sel: '#spotlightTrans', text: 'Transitions are the rules: if you\'re in state X, reading symbol Y, with Z on top of the stack — move to state W and update the stack.' },
-    { sel: '#spotlightSimInput', text: 'Once your PDA is defined, type a string here and press Run to see it in action.' },
+       { sel: '#spotlightSimInput', text: 'Once your PDA is defined, type a string here and press Run to see it in action.' },
+    { sel: '#diagramPanelAnchor', text: 'The state diagram lives right under your input — step the simulation to highlight states and transitions.' },
     { sel: '#spotlightStack', text: 'Watch the stack here — it\'s the PDA\'s memory.' },
   ];
   let spotlightIndex = 0;
@@ -3946,6 +4021,13 @@
     }).join('');
   }
 
+  function updateTraceStepButtons() {
+    const bp = el('btnTracePrev');
+    const bn = el('btnTraceNext');
+    if (bp) bp.disabled = !simPath || stepIndex <= 0;
+    if (bn) bn.disabled = !simPath || stepIndex >= simPath.length - 1;
+  }
+
   function renderLog() {
     const tbody = el('logBody');
     const badge = el('logStepBadge');
@@ -3953,6 +4035,7 @@
     if (!simPath) {
       tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);padding:20px">Press Run or Step to simulate.</td></tr>';
       badge.textContent = 'Step — / —';
+      updateTraceStepButtons();
       renderStepExplain();
       updateRefPanel();
       renderCompTree();
@@ -3988,6 +4071,7 @@
         br.appendChild(div);
       }
     }
+    updateTraceStepButtons();
     renderStepExplain();
     updateRefPanel();
     renderCompTree();
@@ -4220,6 +4304,10 @@
 
   el('btnStep').onclick = stepFwd;
   el('btnBack').onclick = stepBack;
+  const btnTracePrev = el('btnTracePrev');
+  const btnTraceNext = el('btnTraceNext');
+  if (btnTracePrev) btnTracePrev.onclick = stepBack;
+  if (btnTraceNext) btnTraceNext.onclick = stepFwd;
   el('btnReset').onclick = resetSim;
 
   el('btnExplainPrev').onclick = () => {
@@ -4424,9 +4512,18 @@
       btn.classList.add('active');
       const tab = btn.dataset.tab;
       document.querySelectorAll('[data-panel]').forEach(p => {
-        p.style.display = (p.dataset.panel === tab) ? '' : 'none';
+        const id = p.dataset.panel;
+        let show = id === tab;
+        if (tab === 'diagram') show = id === 'sim';
+        p.style.display = show ? '' : 'none';
       });
-      document.querySelector('[data-panel="' + tab + '"]').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (tab === 'diagram') {
+        const anchor = el('diagramPanelAnchor');
+        if (anchor) anchor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        const target = document.querySelector('[data-panel="' + tab + '"]');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
     });
   });
   if (window.innerWidth < 1280) {
@@ -4444,8 +4541,8 @@
     if (!nodePositions[name]) {
       const i = allStateNames().indexOf(name);
       const col = 3;
-      const gapX = 430;
-      const gapY = 300;
+      const gapX = 500;
+      const gapY = 340;
       nodePositions[name] = {
         x: 240 + (i % col) * gapX,
         y: 200 + Math.floor(i / col) * gapY,
