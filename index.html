@@ -217,9 +217,10 @@
       z-index: 15;
     }
     .input-rail-inner {
-      max-width: 1920px;
-      margin: 0 auto;
-      padding: 8px 26px 10px;
+      max-width: none;
+      width: 100%;
+      margin: 0;
+      padding: 8px 20px 10px;
     }
     .input-rail-scroll {
       display: flex;
@@ -343,12 +344,13 @@
     /* Desktop: col1 = Definition + Stack; col2 = Simulation + diagram + trace (one tall column); row3 = tests */
     .app-main {
       display: grid;
-      grid-template-columns: minmax(260px, 0.30fr) minmax(380px, 0.70fr);
+      grid-template-columns: minmax(240px, 0.26fr) minmax(420px, 0.74fr);
       grid-template-rows: minmax(0, 0.96fr) minmax(0, 1.04fr) auto;
-      gap: 22px;
-      padding: 22px 26px 26px;
-      max-width: 1920px;
-      margin: 0 auto;
+      gap: 18px;
+      padding: 16px 20px 20px;
+      max-width: none;
+      width: 100%;
+      margin: 0;
       flex: 1;
       min-height: 0;
       box-sizing: border-box;
@@ -370,6 +372,9 @@
       flex-direction: column;
       overflow: hidden;
     }
+    #panelSim.card {
+      padding: 14px 16px 14px;
+    }
     #panelSim > .section-head,
     #panelSim > .section-sub {
       flex-shrink: 0;
@@ -380,7 +385,7 @@
     }
     .sim-work-column {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr) auto minmax(120px, min(26vh, 300px));
+      grid-template-rows: auto minmax(0, 1fr) auto minmax(96px, min(18vh, 220px));
       overflow: hidden;
       gap: 0;
       min-height: 0;
@@ -434,7 +439,7 @@
     .sim-trace-block .log-header-row { flex: 0 0 auto; }
     .sim-trace-block .log-table-wrap {
       flex: 1 1 auto;
-      min-height: 200px;
+      min-height: 100px;
     }
     .sim-trace-block .comp-tree-view,
     .sim-trace-block #branchArea { flex: 0 0 auto; }
@@ -1663,7 +1668,8 @@
         min-height: 300px;
       }
       .diagram-in-sim .diagram-viewport {
-        min-height: 0;
+        min-height: min(62vh, 900px);
+        flex: 1 1 auto;
       }
     }
     @media (max-width: 1279px) {
