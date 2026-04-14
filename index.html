@@ -607,6 +607,10 @@
       box-shadow: 0 0 12px var(--coral-glow);
       animation: chipPulseC 1.4s ease-in-out infinite;
     }
+    .token-chip.shorthand-chip {
+      border-style: dashed;
+      opacity: 0.92;
+    }
     @keyframes chipPulseC {
       0%, 100% { box-shadow: 0 0 8px var(--coral-glow); }
       50% { box-shadow: 0 0 16px var(--coral-glow); }
@@ -623,6 +627,82 @@
       font-family: var(--font-mono);
     }
     .sim-input-field:focus { border-color: var(--coral); outline: none; color: var(--navy); }
+    .sim-shorthand-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px 14px;
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-dim);
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .sim-shorthand-row label { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-mono); white-space: nowrap; }
+    .sim-shorthand-n {
+      width: 52px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 13px;
+    }
+    .btn-expand-shorthand {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-bright);
+      background: var(--bg-raised);
+      color: var(--text-primary);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .btn-expand-shorthand:hover { background: var(--bg-hover); border-color: var(--accent); color: var(--accent); }
+    .sim-examples-block { margin-top: 10px; }
+    .sim-examples-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin: 0 0 8px;
+    }
+    .sim-examples-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-sim-example {
+      padding: 6px 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border-base);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+    .btn-sim-example:hover:not(:disabled) {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .btn-sim-example:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+    .sim-shorthand-hint { flex: 1; min-width: 200px; line-height: 1.45; }
+    .input-valid-pill.info { color: var(--info); }
+    .token-legend.shorthand-preview { color: var(--info); font-style: italic; margin-top: 6px; }
     .sim-token-area.flash-invalid { animation: flashR 0.4s; }
     @keyframes flashR {
       0%, 100% { border-color: transparent; }
@@ -1845,10 +1925,20 @@
       <div class="input-string-panel" id="spotlightSimInput">
         <div class="sim-step-label">Step 1 &mdash; type your input string</div>
         <div class="input-string-head">
-          <span>Input <span class="learn-term" style="font-weight:400;text-transform:none;letter-spacing:0">?<span class="learn-tip">Symbols from your alphabet. Chips show consumed vs still to read.</span></span></span>
+          <span>Input <span class="learn-term" style="font-weight:400;text-transform:none;letter-spacing:0">?<span class="learn-tip">Symbols from your alphabet. Shorthand: <span class="log-mono">a^3</span> means three <span class="log-mono">a</span>&rsquo;s; <span class="log-mono">a^n</span> uses the value of <span class="log-mono">n</span> below. Run expands shorthand to the real string.</span></span></span>
           <span class="input-valid-pill" id="inputValidPill"></span>
         </div>
-        <input type="text" class="sim-input-field" id="simInputField" placeholder="Type your string..." autocomplete="off" />
+        <input type="text" class="sim-input-field" id="simInputField" placeholder="e.g. aabb or a^2b^2 (shorthand)..." autocomplete="off" />
+        <div class="sim-shorthand-row" aria-label="Repeat shorthand">
+          <p class="sim-shorthand-hint">Repeat notation: one symbol, then <span class="log-mono">^</span>, then a number or <span class="log-mono">n</span> (e.g. <span class="log-mono">a^3b^3</span> &rarr; <span class="log-mono">aaabbb</span>).</p>
+          <label for="simShorthandN"><span class="log-mono">n</span> =</label>
+          <input type="number" class="sim-shorthand-n" id="simShorthandN" min="0" max="200" value="3" title="Used when you write a^n, b^n, etc." />
+          <button type="button" class="btn-expand-shorthand" id="btnExpandShorthand" title="Expand shorthand now (also happens when you Run)">Expand now</button>
+        </div>
+        <div class="sim-examples-block" id="simExamplesWrap">
+          <p class="sim-examples-label">Examples</p>
+          <div id="simExamplesRow" class="sim-examples-row"></div>
+        </div>
         <div id="simTokenRow" class="sim-token-area" tabindex="0" aria-label="Input tokens"></div>
         <div class="token-legend" id="tokenLegend">Consumed &middot; pulse = current &middot; remaining</div>
         <div class="sim-status-strip" id="simStatusStrip">
@@ -2209,6 +2299,18 @@
     ],
   };
 
+  const SIM_EXAMPLE_CHIPS = [
+    { label: 'a^n b^n (n=2)', value: 'a^2b^2' },
+    { label: 'a^n b^n (n=3)', value: 'a^3b^3' },
+    { label: 'ww^R \u2192 abba', value: 'abba' },
+    { label: 'aba', value: 'aba' },
+    { label: 'ababa', value: 'ababa' },
+    { label: 'w c w^R \u2192 abcba', value: 'abcba' },
+    { label: 'aabbaa', value: 'aabbaa' },
+    { label: '(())', value: '(())' },
+    { label: '\u03b5 (empty)', value: '' },
+  ];
+
   const LANGUAGE_PROPS = {
     anbn: [
       { id: 'cfl', label: 'CFL', ok: true, tip: 'This language is context-free: a PDA can recognize it with one stack.' },
@@ -2377,6 +2479,7 @@
     updateLangBadges();
     fitDiagramToContent();
     renderDiagram();
+    renderSimExamples();
     completeFirstLoadIfNeeded();
   }
 
@@ -2396,6 +2499,148 @@
       if (t.input && t.input !== EPS && t.input !== '') s.add(t.input);
     });
     return s;
+  }
+
+  const SHORTHAND_MAX_EXP = 200;
+
+  function getShorthandNDefault() {
+    const nEl = el('simShorthandN');
+    const v = nEl ? parseInt(nEl.value, 10) : 3;
+    if (Number.isNaN(v)) return 3;
+    return Math.max(0, Math.min(SHORTHAND_MAX_EXP, v));
+  }
+
+  /**
+   * Expand patterns like a^3 -> aaa, b^n -> bbb... using nDefault for "n".
+   * @param {string} str no spaces
+   * @param {number} nDefault
+   * @returns {{ value?: string, error?: string }}
+   */
+  function expandCaretShorthand(str, nDefault) {
+    let i = 0;
+    let out = '';
+    while (i < str.length) {
+      if (str[i] === '^') {
+        return { error: 'Misplaced ^ — write a^3 or a^n (symbol, caret, then number or n).' };
+      }
+      if (i + 1 < str.length && str[i + 1] === '^') {
+        const ch = str[i];
+        let j = i + 2;
+        if (j < str.length && str[j] === 'n') {
+          out += ch.repeat(nDefault);
+          i = j + 1;
+          continue;
+        }
+        let num = '';
+        while (j < str.length && str[j] >= '0' && str[j] <= '9') {
+          num += str[j];
+          j++;
+        }
+        if (!num) return { error: 'After ^ use digits (e.g. a^4) or n for the value in the n box.' };
+        const k = parseInt(num, 10);
+        if (k > SHORTHAND_MAX_EXP) return { error: 'Exponent too large (max ' + SHORTHAND_MAX_EXP + ').' };
+        out += ch.repeat(k);
+        i = j;
+        continue;
+      }
+      out += str[i];
+      i++;
+    }
+    return { value: out };
+  }
+
+  function simPatternCharOk(c) {
+    return allowedInputChars().has(c) || '^n0123456789'.includes(c);
+  }
+
+  function tryExpandSimInput(rawCompact) {
+    if (!rawCompact.includes('^')) return { ok: true, concrete: rawCompact };
+    const ex = expandCaretShorthand(rawCompact, getShorthandNDefault());
+    if (ex.error) return { ok: false, error: ex.error };
+    return { ok: true, concrete: ex.value };
+  }
+
+  /** @returns {string|null} concrete input for BFS, or null on error */
+  function resolveInputForSimulation() {
+    const raw = (el('simInputField').value || '').replace(/\s+/g, '');
+    const filtered = [...raw].filter(simPatternCharOk).join('');
+    if (filtered !== raw) {
+      el('simInputField').value = filtered;
+    }
+    inputString = filtered;
+    const exp = tryExpandSimInput(filtered);
+    if (!exp.ok) {
+      showToast(exp.error || 'Invalid shorthand', false);
+      return null;
+    }
+    const concrete = exp.concrete;
+    const bad = [...concrete].some(c => !allowedInputChars().has(c));
+    if (bad) {
+      showToast('Input uses symbols not in the current alphabet (after expanding ^).', false);
+      return null;
+    }
+    inputString = concrete;
+    el('simInputField').value = concrete;
+    renderSimInput();
+    return concrete;
+  }
+
+  function concreteFromExampleValue(val) {
+    const compact = (val || '').replace(/\s+/g, '');
+    if (!compact.includes('^')) return compact;
+    const ex = expandCaretShorthand(compact, getShorthandNDefault());
+    if (ex.error) return null;
+    return ex.value;
+  }
+
+  function exampleFitsAlphabet(val) {
+    const concrete = concreteFromExampleValue(val);
+    if (concrete === null) return false;
+    const allow = allowedInputChars();
+    return [...concrete].every(c => allow.has(c));
+  }
+
+  function renderSimExamples() {
+    const row = el('simExamplesRow');
+    if (!row) return;
+    row.innerHTML = SIM_EXAMPLE_CHIPS.map((ex, i) => {
+      const ok = exampleFitsAlphabet(ex.value);
+      return '<button type="button" class="btn-sim-example" data-ex-i="' + i + '"' + (ok ? '' : ' disabled') + ' title="' + (ok ? 'Insert this string' : 'Uses symbols outside your input alphabet') + '">' + escapeHtml(ex.label) + '</button>';
+    }).join('');
+    row.querySelectorAll('.btn-sim-example').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        const i = +btn.getAttribute('data-ex-i');
+        const ex = SIM_EXAMPLE_CHIPS[i];
+        if (!ex) return;
+        if (autoTimer) clearInterval(autoTimer);
+        autoTimer = null;
+        simPath = null;
+        stepIndex = 0;
+        explainViewStep = 0;
+        inputString = (ex.value || '').replace(/\s+/g, '');
+        el('simInputField').value = inputString;
+        renderSimInput();
+        renderLog();
+        renderStack();
+        renderDiagram();
+        setBanner(false, false);
+        el('bfsWarn').style.display = 'none';
+      });
+    });
+  }
+
+  function updateSimExampleButtonsState() {
+    const row = el('simExamplesRow');
+    if (!row) return;
+    row.querySelectorAll('.btn-sim-example').forEach((btn) => {
+      const i = +btn.getAttribute('data-ex-i');
+      const ex = SIM_EXAMPLE_CHIPS[i];
+      if (!ex) return;
+      const ok = exampleFitsAlphabet(ex.value);
+      btn.disabled = !ok;
+      btn.title = ok ? 'Insert this string' : 'Uses symbols outside your input alphabet';
+    });
   }
 
   function loadPDA() {
@@ -2840,6 +3085,7 @@
       card.addEventListener('mouseleave', () => { hoveredTransIndex = -1; renderDiagramEdges(); });
     });
     updateRunButtonState();
+    updateSimExampleButtonsState();
   }
 
   function updateTransRow(idx, card) {
@@ -2859,6 +3105,7 @@
     card.classList.toggle('invalid', !!inv);
     card.title = inv || '';
     renderDiagram();
+    updateSimExampleButtonsState();
   }
 
   el('addState').onclick = () => {
@@ -3004,11 +3251,33 @@
     const h = el('smartHint');
     const pill = el('inputValidPill');
     if (!h || !pill) return;
-    const bad = [...inputString].some(c => !allowedInputChars().has(c));
-    if (bad) {
+    const raw = (el('simInputField').value || '').replace(/\s+/g, '');
+    const badPattern = [...raw].some(c => !simPatternCharOk(c));
+    const hasCarets = raw.includes('^');
+    let bad = badPattern;
+    let shorthandErr = null;
+    if (!bad && hasCarets) {
+      const ex = tryExpandSimInput(raw);
+      if (!ex.ok) {
+        bad = true;
+        shorthandErr = ex.error;
+      } else {
+        const concrete = ex.concrete;
+        bad = [...concrete].some(c => !allowedInputChars().has(c));
+      }
+    } else if (!bad && raw.length) {
+      bad = [...raw].some(c => !allowedInputChars().has(c));
+    }
+    if (badPattern) {
       pill.textContent = 'Invalid character';
       pill.className = 'input-valid-pill bad';
-    } else if (inputString.length) {
+    } else if (shorthandErr) {
+      pill.textContent = 'Fix shorthand';
+      pill.className = 'input-valid-pill bad';
+    } else if (hasCarets && raw.length) {
+      pill.textContent = 'Shorthand OK';
+      pill.className = 'input-valid-pill info';
+    } else if (raw.length) {
       pill.textContent = 'Alphabet OK';
       pill.className = 'input-valid-pill';
     } else {
@@ -3019,14 +3288,19 @@
       h.style.display = 'none';
       return;
     }
-    const s = inputString;
+    const s = (el('simInputField').value || '').replace(/\s+/g, '');
+    let sHint = s;
+    if (s.includes('^')) {
+      const exp = tryExpandSimInput(s);
+      if (exp.ok) sHint = exp.concrete;
+    }
     if (currentPresetKey === 'anbn') {
-      const na = (s.match(/a/g) || []).length;
-      const nb = (s.match(/b/g) || []).length;
-      const rest = s.replace(/a/g, '').replace(/b/g, '');
+      const na = (sHint.match(/a/g) || []).length;
+      const nb = (sHint.match(/b/g) || []).length;
+      const rest = sHint.replace(/a/g, '').replace(/b/g, '');
       let msg = '';
       if (rest) msg = 'Only \\(a\\) and \\(b\\) matter for this preset; extra symbols may cause rejection.';
-      else if (na === nb && s.indexOf('b') >= 0 && s.lastIndexOf('a') < s.indexOf('b')) msg = 'Same number of \\(a\\) and \\(b\\) with all \\(a\\) before \\(b\\) — likely accepted.';
+      else if (na === nb && sHint.indexOf('b') >= 0 && sHint.lastIndexOf('a') < sHint.indexOf('b')) msg = 'Same number of \\(a\\) and \\(b\\) with all \\(a\\) before \\(b\\) — likely accepted.';
       else if (na !== nb) msg = 'Different counts of \\(a\\) and \\(b\\) — the \\(a^n b^n\\) machine will reject.';
       else msg = 'Pattern hint: you need \\(n\\) copies of \\(a\\) then \\(n\\) copies of \\(b\\).';
       h.innerHTML = msg;
@@ -3037,7 +3311,7 @@
     if (currentPresetKey === 'parens') {
       let bal = 0;
       let ok = true;
-      for (const c of s) {
+      for (const c of sHint) {
         if (c === '(') bal++;
         else if (c === ')') { bal--; if (bal < 0) ok = false; }
       }
@@ -3170,6 +3444,7 @@
       renderStates(); renderTransitions(); resetSim();
       fitDiagramToContent();
       renderDiagram();
+      renderSimExamples();
       showToast('Loaded PDA from link', true);
       history.replaceState(null, '', location.pathname + location.search);
       completeFirstLoadIfNeeded();
@@ -3217,13 +3492,29 @@
   let inputString = '';
 
   function updateSimStatusStrip() {
-    const n = inputString.length;
+    const raw = (el('simInputField').value || '').replace(/\s+/g, '');
     const c = el('simCharCount');
     const a = el('simAlphabetOk');
     const p = el('simPredict');
-    if (c) c.textContent = n + ' character' + (n === 1 ? '' : 's');
+    let n = raw.length;
+    let extra = '';
+    if (raw.includes('^')) {
+      const ex = tryExpandSimInput(raw);
+      if (ex.ok) {
+        n = ex.concrete.length;
+        if (ex.concrete !== raw) extra = ' (after expanding ^)';
+      }
+    }
+    if (c) c.textContent = n + ' character' + (n === 1 ? '' : 's') + extra;
     if (a) {
-      const bad = [...inputString].some(ch => !allowedInputChars().has(ch));
+      let bad = [...raw].some(ch => !simPatternCharOk(ch));
+      if (!bad && raw.includes('^')) {
+        const ex = tryExpandSimInput(raw);
+        if (!ex.ok) bad = true;
+        else bad = [...ex.concrete].some(ch => !allowedInputChars().has(ch));
+      } else if (!bad && raw.length) {
+        bad = [...raw].some(ch => !allowedInputChars().has(ch));
+      }
       a.textContent = bad ? 'Invalid alphabet' : 'Valid alphabet';
     }
     if (p) {
@@ -3237,61 +3528,94 @@
     const row = el('simTokenRow');
     const posEl = el('simPosition');
     const field = el('simInputField');
-    if (field && document.activeElement !== field) field.value = inputString;
-    const cons = inputString.length - (simPath && stepIndex < simPath.length ? simPath[stepIndex].config.remainingInput.length : inputString.length);
+    const legend = el('tokenLegend');
+    if (field) {
+      const compact = (field.value || '').replace(/\s+/g, '');
+      const filtered = [...compact].filter(simPatternCharOk).join('');
+      if (filtered !== compact) field.value = filtered;
+      inputString = filtered;
+    }
+    let chipStr = inputString;
+    let shorthandPreview = false;
+    if (!simPath && inputString.includes('^')) {
+      const ex = tryExpandSimInput(inputString);
+      if (ex.ok) {
+        chipStr = ex.concrete;
+        shorthandPreview = ex.concrete !== inputString;
+      }
+    }
+    const cons = chipStr.length - (simPath && stepIndex < simPath.length ? simPath[stepIndex].config.remainingInput.length : chipStr.length);
     row.innerHTML = '';
-    for (let i = 0; i < inputString.length; i++) {
+    for (let i = 0; i < chipStr.length; i++) {
       const span = document.createElement('span');
       span.className = 'token-chip';
+      if (shorthandPreview) span.classList.add('shorthand-chip');
       if (i < cons) span.classList.add('done');
       else if (i === cons && simPath) span.classList.add('cur');
-      span.textContent = inputString[i];
+      span.textContent = chipStr[i];
       row.appendChild(span);
     }
-    if (!inputString.length) {
+    if (!chipStr.length) {
       row.innerHTML = '<span style="color:var(--text-muted);font-style:italic;font-size:13px">No tokens yet — type below</span>';
     }
-    const curPos = inputString.length ? Math.min(cons + 1, inputString.length) : 0;
-    posEl.textContent = inputString.length
-      ? `Position ${curPos} of ${inputString.length}`
+    if (legend) {
+      legend.textContent = shorthandPreview
+        ? 'Preview after expanding ^ — Consumed · pulse = current · remaining'
+        : 'Consumed · pulse = current · remaining';
+      legend.classList.toggle('shorthand-preview', shorthandPreview);
+    }
+    const curPos = chipStr.length ? Math.min(cons + 1, chipStr.length) : 0;
+    posEl.textContent = chipStr.length
+      ? `Position ${curPos} of ${chipStr.length}` + (shorthandPreview ? ' (expanded)' : '')
       : 'Position — of —';
     updateSmartHint();
     updateSimStatusStrip();
+    updateSimExampleButtonsState();
   }
 
   function handleSimKeydown(e) {
+    const f = el('simInputField');
+    if (f) f.focus();
     if (e.key === 'Backspace') {
-      inputString = inputString.slice(0, -1);
+      if (f) f.value = f.value.slice(0, -1);
       e.preventDefault();
     } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
       const ch = e.key;
-      if (!allowedInputChars().has(ch)) {
+      if (!simPatternCharOk(ch)) {
         el('simTokenRow').classList.add('flash-invalid');
         setTimeout(() => el('simTokenRow').classList.remove('flash-invalid'), 400);
         e.preventDefault();
         return;
       }
-      inputString += ch;
+      if (f) f.value += ch;
       e.preventDefault();
     }
+    inputString = (f && f.value || '').replace(/\s+/g, '');
     renderSimInput();
   }
 
   el('simTokenRow').addEventListener('keydown', handleSimKeydown);
   el('simTokenRow').addEventListener('click', () => el('simInputField').focus());
   el('simInputField').addEventListener('input', () => {
-    inputString = el('simInputField').value;
-    const bad = [...inputString].some(c => !allowedInputChars().has(c));
-    if (bad) {
+    const raw = el('simInputField').value.replace(/\s+/g, '');
+    const cleaned = [...raw].filter(simPatternCharOk).join('');
+    if (cleaned !== raw) {
       el('simTokenRow').classList.add('flash-invalid');
       setTimeout(() => el('simTokenRow').classList.remove('flash-invalid'), 400);
-      inputString = [...inputString].filter(c => allowedInputChars().has(c)).join('');
-      el('simInputField').value = inputString;
+      el('simInputField').value = cleaned;
     }
+    inputString = cleaned;
     renderSimInput();
   });
   el('simInputField').addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); el('btnRun').click(); }
+  });
+  el('btnExpandShorthand').addEventListener('click', () => {
+    if (resolveInputForSimulation() === null) return;
+    showToast('Expanded to the concrete string in the box.', true);
+  });
+  el('simShorthandN').addEventListener('input', () => {
+    renderSimInput();
   });
 
   function badgeFromTag(t) {
@@ -3495,6 +3819,10 @@
 
   function stepFwd() {
     if (!simPath) {
+      if (resolveInputForSimulation() === null) {
+        renderLog(); renderSimInput(); renderStack(); renderDiagram();
+        return;
+      }
       const r = computeSimulation(inputString);
       applySimulationResult(r);
       if (r.error) {
@@ -3545,6 +3873,10 @@
   el('btnRun').onclick = () => {
     if (autoTimer) clearInterval(autoTimer);
     autoTimer = null;
+    if (resolveInputForSimulation() === null) {
+      renderLog(); renderSimInput(); renderStack(); renderDiagram();
+      return;
+    }
     const r = computeSimulation(inputString);
     applySimulationResult(r);
     stepDirection = 1;
@@ -3754,6 +4086,7 @@
         updateLangBadges();
         fitDiagramToContent();
         renderDiagram();
+        renderSimExamples();
         const ns = pda.states ? pda.states.length : 0;
         const nt = pda.transitions ? pda.transitions.length : 0;
         showToast('PDA loaded \u2014 ' + ns + ' states, ' + nt + ' transitions', true);
@@ -4167,6 +4500,7 @@
   renderTransitions();
   renderDiagram();
   renderLog();
+  renderSimExamples();
   renderSimInput();
   renderStack();
   updatePresetExplainCard();
