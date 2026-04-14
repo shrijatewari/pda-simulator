@@ -3,145 +3,139 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PDA Simulator</title>
+  <title>Pushdown — PDA Explorer</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,700;0,9..144,900;1,9..144,700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-base: #0a0b0f;
-      --bg-surface: #111318;
-      --bg-elevated: #181c24;
-      --bg-hover: #1e2330;
-      --border: #2a2f3d;
-      --border-bright: #3d4560;
-      --accent: #5b8af5;
-      --accent-glow: rgba(91, 138, 245, 0.2);
-      --green: #23d18b;
-      --green-glow: rgba(35, 209, 139, 0.15);
-      --red: #f25f5c;
-      --red-glow: rgba(242, 95, 92, 0.15);
-      --amber: #f5a623;
-      --purple: #a78bfa;
-      --purple-glow: rgba(167, 139, 250, 0.15);
-      --text-primary: #e8eaf0;
-      --text-secondary: #8892a4;
-      --text-muted: #525d72;
+      --bg-base: #faf8f4;
+      --bg-surface: #ffffff;
+      --bg-elevated: #f4f1eb;
+      --bg-hover: #ede9e0;
+      --border: #ddd8cc;
+      --border-bright: #b8b0a0;
+      --navy: #1a2340;
+      --navy-light: #2d3a5c;
+      --coral: #e8533a;
+      --coral-light: rgba(232, 83, 58, 0.1);
+      --coral-glow: rgba(232, 83, 58, 0.2);
+      --teal: #0d9488;
+      --teal-light: rgba(13, 148, 136, 0.1);
+      --amber: #d97706;
+      --amber-light: rgba(217, 119, 6, 0.1);
+      --violet: #7c3aed;
+      --violet-light: rgba(124, 58, 237, 0.1);
+      --rose: #e11d48;
+      --rose-light: rgba(225, 29, 72, 0.1);
+      --text-primary: #1a2340;
+      --text-secondary: #4a5568;
+      --text-muted: #9aa3b2;
+      --text-on-accent: #ffffff;
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+      --font-display: 'Fraunces', Georgia, serif;
       --radius-sm: 6px;
       --radius-md: 10px;
       --radius-lg: 16px;
-      --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4);
-      --noise: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      --shadow-card: 0 8px 32px rgba(26, 35, 64, 0.08);
+      --paper-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.02'/%3E%3C/svg%3E");
     }
     * { box-sizing: border-box; }
     html { font-size: 14px; }
     body {
       margin: 0;
       min-height: 100%;
-      font-family: 'Inter', system-ui, sans-serif;
+      font-family: var(--font-sans);
       background-color: var(--bg-base);
-      background-image: var(--noise);
+      background-image: var(--paper-noise);
       color: var(--text-primary);
     }
-    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
-    ::-webkit-scrollbar { width: 4px; height: 4px; }
+    :focus-visible { outline: 2px solid var(--coral); outline-offset: 2px; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: var(--border); border-radius: 4px; }
-    ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb { background: var(--coral); border-radius: 4px; opacity: 0.6; }
 
     .kbd {
-      display: inline-block;
+      display: none;
+      margin-left: 6px;
       padding: 2px 6px;
-      font-size: 11px;
-      font-family: ui-monospace, monospace;
+      font-size: 10px;
+      font-family: var(--font-mono);
       background: var(--bg-elevated);
       border: 1px solid var(--border);
       border-radius: 4px;
       color: var(--text-muted);
-      margin-left: 4px;
     }
+    button:hover .kbd, .btn-run:hover .kbd, .btn-step:hover .kbd, .btn-reset:hover .kbd { display: inline-block; }
 
     header {
-      height: 56px;
+      height: 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 20px;
-      background: rgba(17, 19, 24, 0.85);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
       gap: 16px;
       flex-wrap: wrap;
     }
-    .logo-svg { flex-shrink: 0; }
-    .header-left { display: flex; align-items: center; gap: 12px; }
-    .header-title { font-size: 17px; font-weight: 600; color: var(--text-primary); }
-    .version-pill {
-      font-size: 11px;
-      font-weight: 500;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      color: var(--text-muted);
+    .brand-block { display: flex; flex-direction: column; gap: 2px; flex-shrink: 0; }
+    .brand-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 22px;
+      color: var(--navy);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
     }
-    .header-center { flex: 1; display: flex; justify-content: center; min-width: 200px; position: relative; }
-    .header-right { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-
-    .preset-trigger {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+    .brand-sub { font-size: 11px; color: var(--text-muted); font-weight: 400; }
+    .brand-sub.italic { font-family: var(--font-display); font-style: italic; color: var(--text-secondary); }
+    .header-divider {
+      width: 1px;
       height: 36px;
-      min-width: 260px;
-      padding: 0 14px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .header-left { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .header-center { flex: 1; display: flex; justify-content: center; min-width: 200px; }
+    .header-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+    .preset-segments {
+      display: inline-flex;
+      align-items: stretch;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border);
-      color: var(--text-primary);
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: border-color 0.15s, background 0.15s;
+      background: var(--bg-elevated);
+      overflow: hidden;
+      flex-wrap: wrap;
+      justify-content: center;
     }
-    .preset-trigger:hover { border-color: var(--border-bright); background: rgba(255, 255, 255, 0.06); }
-    .preset-trigger .preset-chevron { margin-left: auto; opacity: 0.6; font-size: 10px; }
-    .preset-menu {
-      display: none;
-      position: absolute;
-      top: calc(100% + 8px);
-      left: 50%;
-      transform: translateX(-50%);
-      min-width: 320px;
-      max-height: 320px;
-      overflow: auto;
-      z-index: 200;
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-card);
-      padding: 6px;
-    }
-    .preset-menu.open { display: block; }
-    .preset-item {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 10px 12px;
+    .preset-seg {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 14px;
       border: none;
-      border-radius: var(--radius-sm);
       background: transparent;
-      color: var(--text-primary);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      font-family: var(--font-sans);
       cursor: pointer;
-      font-size: 13px;
+      border-right: 1px solid var(--border);
+      transition: background 0.15s, color 0.15s;
     }
-    .preset-item:hover { background: var(--bg-hover); }
-    .preset-item-title { font-weight: 600; margin-bottom: 4px; }
-    .preset-item-desc { font-size: 12px; color: var(--text-muted); font-weight: 400; }
-    .tag-pill { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }
-    .tag-pill.cf { background: rgba(91, 138, 245, 0.2); color: var(--accent); }
-    .tag-pill.cfl { background: var(--green-glow); color: var(--green); }
-    .tag-pill.non { background: var(--red-glow); color: var(--red); }
+    .preset-seg:last-child { border-right: none; }
+    .preset-seg:hover { background: var(--bg-hover); color: var(--navy); }
+    .preset-seg.active {
+      background: var(--coral-light);
+      color: var(--coral);
+      box-shadow: inset 0 -2px 0 var(--coral);
+    }
+    .preset-seg .seg-icon { font-size: 14px; line-height: 1; }
 
     .btn-ghost-header {
       display: inline-flex;
@@ -150,26 +144,30 @@
       padding: 8px 12px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
-      background: transparent;
+      background: var(--bg-surface);
       color: var(--text-secondary);
       font-size: 13px;
+      font-family: var(--font-sans);
       cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
     }
-    .btn-ghost-header:hover { background: var(--bg-hover); border-color: var(--border-bright); }
-    .theme-glow {
+    .btn-ghost-header:hover { background: var(--bg-hover); border-color: var(--border-bright); color: var(--navy); }
+    .btn-icon-round {
       width: 40px;
       height: 40px;
       border-radius: 10px;
       border: 1px solid var(--border);
-      background: linear-gradient(145deg, var(--bg-elevated), #1a2030);
-      box-shadow: 0 0 20px var(--accent-glow);
-      cursor: pointer;
+      background: var(--bg-surface);
+      color: var(--navy);
       font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.15s, box-shadow 0.15s;
     }
+    .btn-icon-round:hover { background: var(--coral-light); box-shadow: 0 0 0 2px var(--coral-glow); }
 
     .app-main {
       display: grid;
@@ -179,7 +177,7 @@
       padding: 16px;
       max-width: 1920px;
       margin: 0 auto;
-      min-height: calc(100vh - 56px);
+      min-height: calc(100vh - 64px);
     }
     @media (max-width: 1279px) {
       .app-main { grid-template-columns: 1fr; grid-template-rows: auto; }
@@ -193,35 +191,45 @@
       border: 1px solid var(--border);
       background: var(--bg-surface);
       color: var(--text-secondary);
+      font-family: var(--font-sans);
     }
-    .tab-btn.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
+    .tab-btn.active { border-color: var(--coral); color: var(--coral); font-weight: 600; }
 
     .card {
       background: var(--bg-surface);
       border: 1px solid var(--border);
       border-radius: var(--radius-lg);
+      border-top: 2px solid transparent;
+      border-image: linear-gradient(90deg, var(--coral), var(--violet)) 1;
+      border-image-slice: 1;
       box-shadow: var(--shadow-card);
       padding: 16px;
       display: flex;
       flex-direction: column;
       min-height: 0;
     }
+    .card.card-stagger-in { animation: staggerCard 0.45s ease backwards; }
+    @keyframes staggerCard {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
     .section-head {
       display: flex;
       align-items: center;
       gap: 8px;
       margin: 0 0 12px;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 0.08em;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
       text-transform: uppercase;
-      color: var(--text-muted);
+      color: var(--navy);
     }
-    .section-head .accent-bar { width: 2px; height: 14px; border-radius: 1px; }
-    .section-head.states .accent-bar { background: var(--accent); }
-    .section-head.trans .accent-bar { background: var(--green); }
+    .section-head .accent-bar { width: 3px; height: 16px; border-radius: 2px; background: linear-gradient(180deg, var(--coral), var(--violet)); }
+    .section-head.trans .accent-bar { background: linear-gradient(180deg, var(--teal), var(--violet)); }
     .section-head .count-pill {
       margin-left: auto;
+      font-family: var(--font-sans);
       font-size: 10px;
       padding: 2px 8px;
       border-radius: 999px;
@@ -229,120 +237,113 @@
       border: 1px solid var(--border);
       color: var(--text-muted);
       letter-spacing: 0;
+      text-transform: none;
+      font-weight: 600;
     }
 
     .def-scroll { overflow: auto; max-height: min(72vh, 620px); padding-right: 4px; }
 
-    /* States */
-    .state-row {
+    /* State chips */
+    .states-chip-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-start;
+      min-height: 72px;
+    }
+    .state-chip {
+      width: 80px;
+      min-height: 64px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      padding: 8px 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: grab;
+      transition: box-shadow 0.2s, transform 0.15s, border-color 0.15s;
+      position: relative;
+    }
+    .state-chip:active { cursor: grabbing; }
+    .state-chip.dragging { opacity: 0.55; transform: scale(0.98); }
+    .state-chip.is-start { border-left: 3px solid var(--coral); }
+    .state-chip.is-accept .state-chip-dot { box-shadow: 0 0 0 2px var(--teal), 0 0 0 4px var(--bg-surface); }
+    .state-chip.active-sim {
+      background: var(--coral);
+      border-color: var(--coral);
+      color: var(--text-on-accent);
+      box-shadow: 0 6px 20px var(--coral-glow);
+    }
+    .state-chip.active-sim .state-chip-name,
+    .state-chip.active-sim .state-chip-badge { color: var(--text-on-accent); }
+    .state-chip.selected { outline: 2px solid var(--violet); outline-offset: 2px; }
+    .state-chip-row-inner {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      border-radius: var(--radius-md);
-      background: var(--bg-elevated);
-      border: 1px solid var(--border);
-      transition: background 0.15s;
+      gap: 4px;
+      width: 100%;
+      justify-content: center;
     }
-    .state-row:hover { background: var(--bg-hover); }
-    .state-row.active-sim {
-      background: rgba(91, 138, 245, 0.08);
-      border-left: 2px solid var(--accent);
-    }
-    .state-dot {
-      width: 10px;
-      height: 10px;
+    .state-chip-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: var(--text-muted);
       flex-shrink: 0;
     }
-    .state-dot.pulse {
-      background: var(--accent);
-      box-shadow: 0 0 0 0 rgba(91, 138, 245, 0.5);
-      animation: pulseDot 2s ease-in-out infinite;
-    }
-    @keyframes pulseDot {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(91, 138, 245, 0.45); }
-      50% { box-shadow: 0 0 0 6px rgba(91, 138, 245, 0); }
-    }
-    .state-name-wrap { flex: 1; min-width: 0; }
-    .state-name-wrap input {
+    .state-chip.active-sim .state-chip-dot { background: #fff; }
+    .state-chip-name {
       width: 100%;
-      max-width: 120px;
+      text-align: center;
       border: none;
       background: transparent;
-      color: var(--text-primary);
-      font-size: 14px;
-      font-weight: 600;
-      border-bottom: 1px solid transparent;
+      color: var(--navy);
+      font-size: 13px;
+      font-weight: 700;
+      font-family: var(--font-mono);
       padding: 2px 0;
     }
-    .state-name-wrap input:focus { border-bottom-color: var(--accent); outline: none; }
-    .badge-s, .badge-a {
-      font-size: 10px;
+    .state-chip.active-sim .state-chip-name { color: #fff; }
+    .state-chip-badge {
+      font-size: 9px;
       font-weight: 700;
-      width: 26px;
-      height: 24px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
+      letter-spacing: 0.06em;
+      color: var(--coral);
+      text-transform: uppercase;
+    }
+    .state-chip:not(.active-sim) .state-chip-badge.accept-badge { color: var(--teal); }
+    .state-chip-tools {
+      display: flex;
+      gap: 2px;
+      margin-top: 2px;
+    }
+    .state-chip-tools button {
+      border: none;
       background: transparent;
       color: var(--text-muted);
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .badge-s.on { background: rgba(91, 138, 245, 0.12); border-color: var(--accent); color: var(--accent); }
-    .badge-a.on { background: var(--green-glow); border-color: var(--green); color: var(--green); }
-    .state-menu-wrap { position: relative; }
-    .state-menu-btn {
-      width: 32px;
-      height: 28px;
-      border: none;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--text-muted);
-      cursor: pointer;
-      opacity: 0;
-      transition: opacity 0.15s;
-    }
-    .state-row:hover .state-menu-btn { opacity: 1; }
-    .state-menu-btn:hover { background: var(--bg-hover); color: var(--text-primary); }
-    .state-dropdown {
-      display: none;
-      position: absolute;
-      right: 0;
-      top: 100%;
-      z-index: 50;
-      min-width: 120px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-card);
-      padding: 4px;
-    }
-    .state-dropdown.open { display: block; }
-    .state-dropdown button {
-      display: block;
-      width: 100%;
-      text-align: left;
-      padding: 8px 10px;
-      border: none;
-      background: none;
-      color: var(--red);
-      font-size: 13px;
+      font-size: 10px;
+      padding: 2px 4px;
       cursor: pointer;
       border-radius: 4px;
     }
-    .state-dropdown button:hover { background: var(--bg-hover); }
+    .state-chip-tools button.on-s { color: var(--coral); font-weight: 700; }
+    .state-chip-tools button.on-a { color: var(--teal); font-weight: 700; }
+    .state-chip-menu { position: relative; }
+    .state-chip .state-dropdown { top: 100%; right: 0; }
+
     .btn-add-dashed {
       width: 100%;
       height: 34px;
-      margin-top: 4px;
+      margin-top: 8px;
       border: 1px dashed var(--border);
       border-radius: var(--radius-md);
       background: transparent;
       color: var(--text-muted);
       font-size: 13px;
+      font-family: var(--font-sans);
       cursor: pointer;
       display: flex;
       align-items: center;
@@ -352,20 +353,24 @@
     }
     .btn-add-dashed:hover { background: var(--bg-hover); border-color: var(--border-bright); color: var(--text-secondary); }
 
-    /* Transition cards */
     .trans-cards { display: flex; flex-direction: column; gap: 8px; }
     .trans-card {
       background: var(--bg-elevated);
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
+      border-left: 4px solid var(--violet);
       padding: 12px;
       transition: box-shadow 0.2s, border-color 0.2s;
     }
-    .trans-card.invalid { border-left: 3px solid var(--red); }
-    .trans-card.hover-sync { box-shadow: 0 0 0 2px var(--accent-glow); }
+    .trans-card.op-push { border-left-color: var(--coral); }
+    .trans-card.op-pop { border-left-color: var(--teal); }
+    .trans-card.op-eps { border-left-color: var(--amber); }
+    .trans-card.op-mix { border-left-color: var(--violet); }
+    .trans-card.invalid { border-left-color: var(--rose); }
+    .trans-card.hover-sync { box-shadow: 0 0 0 2px var(--coral-glow); }
     .trans-card.active-step {
-      border-color: var(--green);
-      box-shadow: 0 0 16px var(--green-glow);
+      border-color: var(--teal);
+      box-shadow: 0 0 16px var(--teal-light);
     }
     .trans-card-head {
       display: flex;
@@ -374,16 +379,18 @@
       margin-bottom: 10px;
       font-size: 14px;
       font-weight: 600;
+      color: var(--navy);
     }
-    .trans-card-head .arrow { color: var(--accent); margin: 0 8px; }
+    .trans-card-head .arrow { color: var(--coral); margin: 0 8px; }
     .trans-card-head select {
       border: none;
-      background: var(--bg-base);
-      color: var(--text-primary);
+      background: var(--bg-surface);
+      color: var(--navy);
       font-weight: 600;
       padding: 4px 8px;
       border-radius: 6px;
       font-size: 14px;
+      font-family: var(--font-sans);
     }
     .trans-card-del {
       border: none;
@@ -393,39 +400,122 @@
       padding: 4px 8px;
       border-radius: 6px;
     }
-    .trans-card-del:hover { background: var(--red-glow); color: var(--red); }
+    .trans-card-del:hover { background: var(--rose-light); color: var(--rose); }
     .trans-fields {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
       gap: 10px;
     }
     @media (max-width: 520px) { .trans-fields { grid-template-columns: 1fr; } }
-    .tf {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    .tf { display: flex; flex-direction: column; gap: 4px; }
     .tf label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
     .tf input {
       padding: 8px 10px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
-      background: var(--bg-base);
-      color: var(--text-primary);
-      font-family: ui-monospace, monospace;
+      background: var(--bg-surface);
+      color: var(--navy);
+      font-family: var(--font-mono);
       font-size: 13px;
     }
     .tf input.eps-input { color: var(--amber); font-style: italic; }
 
-    /* Simulation */
+    .lang-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .lang-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      cursor: help;
+      font-family: var(--font-sans);
+    }
+    .lang-badge.ok { border-color: var(--teal); background: var(--teal-light); color: var(--teal); }
+    .lang-badge.no { border-color: var(--border-bright); opacity: 0.85; }
+
+    .preset-explain-card {
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: linear-gradient(135deg, var(--bg-elevated), var(--bg-surface));
+      padding: 14px 16px;
+      margin-bottom: 14px;
+    }
+    .preset-explain-card h3 {
+      margin: 0 0 8px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .preset-explain-card p { margin: 0 0 8px; font-size: 13px; color: var(--text-secondary); line-height: 1.55; }
+    .preset-explain-actions { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn-coral {
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: none;
+      background: var(--coral);
+      color: #fff;
+      font-weight: 600;
+      font-size: 13px;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: filter 0.15s, transform 0.1s;
+    }
+    .btn-coral:hover { filter: brightness(1.06); }
+    .btn-coral:active { transform: scale(0.98); }
+
+    .input-string-panel {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .input-string-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+    }
+    .input-valid-pill {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--teal);
+    }
+    .input-valid-pill.bad { color: var(--rose); }
+    .token-legend { font-size: 11px; color: var(--text-muted); margin-top: 8px; }
+    .smart-hint {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      background: var(--coral-light);
+      border-left: 3px solid var(--coral);
+      font-size: 12px;
+      color: var(--navy);
+      line-height: 1.5;
+    }
+    .smart-hint::before { content: '\1F4A1\00a0'; }
+
     .sim-token-area {
-      min-height: 56px;
+      min-height: 48px;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
       align-items: center;
-      padding: 12px;
-      margin-bottom: 8px;
+      padding: 8px 0;
     }
     .token-chip {
       width: 32px;
@@ -433,79 +523,92 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      font-family: ui-monospace, monospace;
-      font-size: 16px;
-      font-weight: 700;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      font-weight: 600;
       border-radius: 8px;
       border: 1px solid var(--border);
-      background: var(--bg-elevated);
-      color: var(--text-primary);
-      transition: transform 0.2s, box-shadow 0.2s;
+      background: var(--bg-surface);
+      color: var(--navy);
+      transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.2s;
     }
-    .token-chip.done { opacity: 0.35; text-decoration: line-through; }
+    .token-chip.done {
+      opacity: 0.4;
+      text-decoration: line-through;
+      transform: translateY(-6px);
+    }
+    .token-chip.exit-consume {
+      animation: chipConsumed 0.35s ease forwards;
+    }
+    @keyframes chipConsumed {
+      to { transform: translateY(-8px); opacity: 0; }
+    }
     .token-chip.cur {
-      background: var(--accent-glow);
-      border-color: var(--accent);
-      color: var(--accent);
-      transform: scale(1.1);
-      box-shadow: 0 0 12px var(--accent-glow);
-      animation: chipPulse 1.5s ease-in-out infinite;
+      background: var(--coral-light);
+      border-color: var(--coral);
+      color: var(--coral);
+      transform: scale(1.08);
+      box-shadow: 0 0 12px var(--coral-glow);
+      animation: chipPulseC 1.4s ease-in-out infinite;
     }
-    @keyframes chipPulse {
-      0%, 100% { box-shadow: 0 0 8px var(--accent-glow); }
-      50% { box-shadow: 0 0 16px rgba(91, 138, 245, 0.45); }
+    @keyframes chipPulseC {
+      0%, 100% { box-shadow: 0 0 8px var(--coral-glow); }
+      50% { box-shadow: 0 0 16px var(--coral-glow); }
     }
-    .sim-position { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+    .sim-position { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
     .sim-input-field {
       width: 100%;
       padding: 12px 14px;
       border-radius: var(--radius-md);
       border: 1px solid var(--border);
-      background: var(--bg-base);
-      color: var(--text-muted);
+      background: var(--bg-surface);
+      color: var(--text-secondary);
       font-size: 13px;
+      font-family: var(--font-mono);
     }
-    .sim-input-field:focus { border-color: var(--accent); outline: none; color: var(--text-primary); }
+    .sim-input-field:focus { border-color: var(--coral); outline: none; color: var(--navy); }
     .sim-token-area.flash-invalid { animation: flashR 0.4s; }
     @keyframes flashR {
-      0%, 100% { border-color: var(--border); }
-      50% { border-color: var(--red); }
+      0%, 100% { border-color: transparent; }
+      50% { border-color: var(--rose); }
     }
 
-    .controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 16px; }
+    .controls-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 14px; }
     .btn-run {
       height: 40px;
       padding: 0 20px;
       border: none;
       border-radius: var(--radius-md);
-      background: linear-gradient(135deg, #5b8af5, #7c6ef5);
+      background: linear-gradient(135deg, var(--coral), #c73d28);
       color: #fff;
       font-weight: 600;
       font-size: 14px;
+      font-family: var(--font-sans);
       cursor: pointer;
-      box-shadow: 0 4px 16px rgba(91, 138, 245, 0.4);
+      box-shadow: 0 4px 16px var(--coral-glow);
       transition: filter 0.15s, transform 0.1s;
     }
-    .btn-run:hover { filter: brightness(1.08); }
+    .btn-run:hover { filter: brightness(1.06); }
     .btn-run:active { transform: scale(0.97); }
     .btn-step {
       height: 38px;
       padding: 0 14px;
       border-radius: var(--radius-sm);
       border: 1px solid var(--border);
-      background: transparent;
+      background: var(--bg-surface);
       color: var(--text-secondary);
       cursor: pointer;
       font-size: 13px;
+      font-family: var(--font-sans);
     }
     .btn-step:hover { background: var(--bg-hover); }
-    .btn-reset { border: none; background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 8px 10px; }
-    .btn-reset:hover { color: var(--text-primary); }
-    .speed-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 14px; }
+    .btn-reset { border: none; background: none; color: var(--text-muted); font-size: 13px; cursor: pointer; padding: 8px 10px; font-family: var(--font-sans); }
+    .btn-reset:hover { color: var(--navy); }
+    .speed-row { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; margin-top: 12px; }
     .speed-row input[type="range"] {
       -webkit-appearance: none;
       width: 160px;
-      height: 3px;
+      height: 4px;
       border-radius: 2px;
       background: var(--border);
     }
@@ -514,12 +617,31 @@
       width: 16px;
       height: 16px;
       border-radius: 50%;
-      background: var(--accent);
+      background: var(--coral);
       border: 2px solid #fff;
       cursor: pointer;
     }
-    .auto-run-label { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 13px; cursor: pointer; }
-    .auto-run-label input { accent-color: var(--accent); width: 18px; height: 18px; }
+    .auto-run-label { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 13px; cursor: pointer; font-family: var(--font-sans); }
+    .auto-run-label input { accent-color: var(--coral); width: 18px; height: 18px; }
+
+    .sim-view-toggle {
+      display: inline-flex;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-left: auto;
+    }
+    .sim-view-toggle button {
+      border: none;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+    }
+    .sim-view-toggle button.active { background: var(--coral); color: #fff; }
 
     .banner {
       margin-top: 14px;
@@ -537,16 +659,24 @@
       to { opacity: 1; transform: translateY(0); }
     }
     .banner.accept {
-      background: linear-gradient(90deg, rgba(35, 209, 139, 0.12), transparent);
-      border: 1px solid rgba(35, 209, 139, 0.35);
-      border-left: 3px solid var(--green);
-      color: var(--green);
+      background: linear-gradient(90deg, var(--teal-light), transparent);
+      border: 1px solid rgba(13, 148, 136, 0.35);
+      border-left: 3px solid var(--teal);
+      color: var(--teal);
     }
     .banner.reject {
-      background: linear-gradient(90deg, rgba(242, 95, 92, 0.12), transparent);
-      border: 1px solid rgba(242, 95, 92, 0.35);
-      border-left: 3px solid var(--red);
-      color: var(--red);
+      background: linear-gradient(90deg, var(--rose-light), transparent);
+      border: 1px solid rgba(225, 29, 72, 0.35);
+      border-left: 3px solid var(--rose);
+      color: var(--rose);
+      animation: bannerIn 0.25s ease-out, rejectShake 0.3s ease;
+    }
+    @keyframes rejectShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-4px); }
+      40% { transform: translateX(4px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
     }
     .banner-dismiss {
       position: absolute;
@@ -562,21 +692,21 @@
       line-height: 1;
     }
     .banner-dismiss:hover { opacity: 1; }
-    .banner-sub { font-size: 13px; font-weight: 400; opacity: 0.9; margin-top: 4px; color: var(--text-secondary); }
-    .check-anim svg circle { stroke: var(--green); stroke-dasharray: 24; stroke-dashoffset: 24; animation: drawCheck 0.5s ease forwards; }
+    .banner-sub { font-size: 13px; font-weight: 400; opacity: 0.95; margin-top: 4px; color: var(--text-secondary); }
+    .check-anim svg circle { stroke: var(--teal); stroke-dasharray: 24; stroke-dashoffset: 24; animation: drawCheck 0.5s ease forwards; }
     @keyframes drawCheck { to { stroke-dashoffset: 0; } }
 
     .warn-box {
       margin-top: 10px;
       padding: 10px 12px;
       border-radius: var(--radius-sm);
-      background: rgba(245, 166, 35, 0.1);
+      background: var(--amber-light);
       border: 1px solid var(--amber);
       font-size: 12px;
       color: var(--amber);
     }
 
-    .log-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 8px; }
+    .log-header-row { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
     .log-step-badge {
       font-size: 12px;
       font-weight: 600;
@@ -585,73 +715,182 @@
       background: var(--bg-elevated);
       border: 1px solid var(--border);
       color: var(--text-muted);
-      font-family: ui-monospace, monospace;
+      font-family: var(--font-mono);
     }
     .log-table-wrap {
       overflow: auto;
-      max-height: 340px;
+      max-height: 280px;
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
-      background: var(--bg-base);
+      background: var(--bg-elevated);
+      position: relative;
+ }
+    .log-table-wrap::before {
+      content: '';
+      position: absolute;
+      left: 12px;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      border-left: 1px dashed var(--border);
+      pointer-events: none;
+      z-index: 0;
     }
-    .log-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 12px; position: relative; z-index: 1; }
     .log-table th {
       position: sticky;
       top: 0;
-      background: var(--bg-base);
-      z-index: 1;
-      padding: 10px 12px;
+      background: var(--bg-surface);
+      z-index: 2;
+      padding: 10px 12px 10px 28px;
       text-align: left;
-      font-size: 11px;
+      font-size: 10px;
       text-transform: uppercase;
       letter-spacing: 0.06em;
       color: var(--text-muted);
       border-bottom: 1px solid var(--border);
+      font-family: var(--font-sans);
     }
-    .log-table td { padding: 10px 12px; height: 36px; border-bottom: 1px solid var(--border); vertical-align: middle; }
-    .log-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.02); }
+    .log-table td { padding: 10px 12px 10px 28px; height: 40px; border-bottom: 1px solid var(--border); vertical-align: middle; position: relative; }
+    .log-table td:first-child::before {
+      content: '';
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--border-bright);
+      border: 2px solid var(--bg-surface);
+    }
+    .log-row-current td:first-child::before {
+      background: var(--coral);
+      box-shadow: 0 0 0 3px var(--coral-light);
+    }
+    .log-table tbody tr:nth-child(even) { background: rgba(255, 255, 255, 0.5); }
     .log-row-current {
-      border-left: 3px solid var(--accent);
-      background: rgba(91, 138, 245, 0.07) !important;
+      background: var(--coral-light) !important;
     }
-    .log-row-current td { color: var(--text-primary); }
-    .log-mono { font-family: ui-monospace, monospace; }
+    .log-row-current td { color: var(--navy); }
+    .log-mono { font-family: var(--font-mono); }
     .stack-inline-chip {
       display: inline-block;
       padding: 2px 6px;
       margin: 0 2px;
       border-radius: 4px;
       font-size: 11px;
-      font-family: ui-monospace, monospace;
-      border: 1px solid var(--accent);
-      color: var(--accent);
-      background: rgba(91, 138, 245, 0.1);
+      font-family: var(--font-mono);
+      border: 1px solid var(--coral);
+      color: var(--coral);
+      background: var(--coral-light);
     }
     .stack-inline-chip.z0 {
-      border-color: var(--purple);
-      color: var(--purple);
-      background: var(--purple-glow);
+      border-color: var(--violet);
+      color: var(--violet);
+      background: var(--violet-light);
     }
-    .badge-act { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; margin: 2px; }
-    .badge-act.push { background: var(--green-glow); border: 1px solid var(--green); color: var(--green); }
-    .badge-act.pop { background: var(--red-glow); border: 1px solid var(--red); color: var(--red); }
-    .badge-act.eps { background: rgba(245, 166, 35, 0.12); border: 1px solid var(--amber); color: var(--amber); }
-    .badge-act.cons { background: var(--accent-glow); border: 1px solid var(--accent); color: var(--accent); }
+    .badge-act { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; margin: 2px; font-family: var(--font-sans); }
+    .badge-act.push { background: var(--coral-light); border: 1px solid var(--coral); color: var(--coral); }
+    .badge-act.pop { background: var(--teal-light); border: 1px solid var(--teal); color: var(--teal); }
+    .badge-act.eps { background: var(--amber-light); border: 1px solid var(--amber); color: var(--amber); }
+    .badge-act.cons { background: var(--coral-light); border: 1px solid var(--coral); color: var(--coral); }
     .badge-act.start { background: var(--bg-elevated); border: 1px solid var(--border); color: var(--text-muted); }
     .branch-block {
       margin: 8px 0;
       padding: 10px 12px;
       border-left: 2px dashed var(--border);
-      color: var(--text-muted);
+      color: var(--text-secondary);
       font-size: 11px;
-      font-family: ui-monospace, monospace;
+      font-family: var(--font-mono);
       background: var(--bg-elevated);
       border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     }
 
+    .step-explain-card {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      background: var(--bg-surface);
+      box-shadow: 0 4px 20px rgba(26, 35, 64, 0.06);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+    .step-explain-card.refreshing { opacity: 0; transform: translateY(4px); }
+    .step-explain-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 14px;
+      color: var(--navy);
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+    .step-explain-body { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+    .step-explain-body ol { margin: 8px 0 0; padding-left: 1.2rem; }
+    .step-explain-body li { margin-bottom: 4px; }
+
+    .test-suite {
+      margin-top: 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      background: var(--bg-elevated);
+      overflow: hidden;
+    }
+    .test-suite summary {
+      padding: 12px 14px;
+      cursor: pointer;
+      font-weight: 700;
+      font-family: var(--font-display);
+      font-size: 14px;
+      color: var(--navy);
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .test-suite summary::-webkit-details-marker { display: none; }
+    .test-suite-actions { display: flex; gap: 8px; }
+    .test-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .test-table th, .test-table td { padding: 8px 12px; text-align: left; border-top: 1px solid var(--border); }
+    .test-table th { background: var(--bg-surface); color: var(--text-muted); text-transform: uppercase; font-size: 10px; }
+    .test-progress { padding: 10px 14px; font-size: 12px; color: var(--text-secondary); border-top: 1px solid var(--border); }
+    .test-bar { height: 6px; border-radius: 3px; background: var(--border); margin-top: 6px; overflow: hidden; }
+    .test-bar > i { display: block; height: 100%; background: var(--teal); border-radius: 3px; transition: width 0.3s; }
+
+    .comp-tree-view {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--text-secondary);
+      max-height: 320px;
+      overflow: auto;
+      padding: 12px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      white-space: pre-wrap;
+    }
+    .comp-tree-line.accept { color: var(--teal); font-weight: 600; }
+    .comp-tree-line.dead { color: var(--rose); opacity: 0.85; }
+    .comp-tree-line.norm { color: var(--text-secondary); }
+
     /* Stack panel */
     .stack-head-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-    .stack-head-row .accent-bar { width: 2px; height: 14px; background: var(--purple); border-radius: 1px; }
+    .stack-head-row .accent-bar { width: 3px; height: 16px; background: linear-gradient(180deg, var(--violet), var(--coral)); border-radius: 2px; }
+    .stack-head-row .stack-label {
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--navy);
+    }
     .stack-icon-anim.shuffle .bar1 { animation: sh1 0.4s ease; }
     .stack-icon-anim.shuffle .bar2 { animation: sh2 0.4s ease; }
     .stack-icon-anim.shuffle .bar3 { animation: sh3 0.4s ease; }
@@ -674,56 +913,65 @@
       border-left: 1px dashed var(--border);
       margin-top: 24px;
       flex-shrink: 0;
+      position: relative;
+    }
+    .stack-spine::after {
+      content: '';
+      position: absolute;
+      left: -2px;
+      top: 28px;
+      bottom: 28px;
+      border-left: 2px dotted var(--border-bright);
+      opacity: 0.5;
     }
     .stack-main { flex: 1; display: flex; flex-direction: column; align-items: center; }
-    .stack-arrow { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; width: 100%; text-align: center; }
-    .stack-arrow::before { content: '▾ '; color: var(--accent); }
-    .stack-cells { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+    .stack-arrow { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; width: 100%; text-align: center; font-family: var(--font-sans); }
+    .stack-arrow::before { content: '\25BC\00a0'; color: var(--coral); }
+    .stack-cells { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
     .stack-cell {
       width: 180px;
       height: 52px;
       border-radius: 10px;
-      border: 1.5px solid var(--accent);
+      border: 2px solid var(--coral);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
       font-weight: 700;
-      font-family: ui-monospace, monospace;
+      font-family: var(--font-mono);
       background: var(--bg-elevated);
-      color: var(--accent);
-      box-shadow: 0 0 12px var(--accent-glow);
-      transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.35s;
+      color: var(--navy);
+      transition: transform 0.45s cubic-bezier(0.34, 1.45, 0.64, 1), opacity 0.35s, box-shadow 0.35s;
     }
     .stack-cell.z0 {
-      background: var(--purple-glow);
-      border-color: var(--purple);
-      color: var(--purple);
-      gap: 6px;
+      background: linear-gradient(135deg, var(--violet-light), var(--bg-elevated));
+      border-color: var(--violet);
+      color: var(--violet);
     }
-    .stack-cell.z0 .z0-mark { font-size: 14px; opacity: 0.8; }
-    .stack-cell.push-anim { animation: stackPush 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards, stackGlowG 0.6s ease; }
+    .stack-cell.z0 .z0-mark { font-size: 14px; opacity: 0.85; }
+    .stack-cell.push-anim { animation: stackPush 0.45s cubic-bezier(0.34, 1.45, 0.64, 1) forwards; }
     @keyframes stackPush {
-      from { transform: translateY(-60px) scale(0.85); opacity: 0; }
+      from { transform: translateY(-56px) scale(0.9); opacity: 0; }
       to { transform: translateY(0) scale(1); opacity: 1; }
-    }
-    @keyframes stackGlowG {
-      0% { box-shadow: 0 0 20px var(--green-glow), 0 0 6px var(--green); }
-      100% { box-shadow: 0 0 12px var(--accent-glow); }
     }
     .stack-cell.pop-anim { animation: stackPop 0.28s ease-in forwards; }
     @keyframes stackPop {
-      to { transform: translateY(-60px) scale(0.85); opacity: 0; }
+      to { transform: translateY(-56px) scale(0.9); opacity: 0; }
     }
     .stack-cell.pop-rev { animation: stackPushRev 0.35s ease-out forwards; }
     @keyframes stackPushRev {
-      from { transform: translateY(-60px) scale(0.85); opacity: 0; }
+      from { transform: translateY(-56px) scale(0.9); opacity: 0; }
       to { transform: translateY(0) scale(1); opacity: 1; }
     }
     .stack-cell.push-out-rev { animation: stackPopRev 0.28s ease-in forwards; }
     @keyframes stackPopRev {
       from { transform: translateY(0) scale(1); opacity: 1; }
-      to { transform: translateY(-60px) scale(0.85); opacity: 0; }
+      to { transform: translateY(-56px) scale(0.9); opacity: 0; }
+    }
+    .stack-visual.accept-glow .stack-cell { animation: stackAcceptGlow 0.6s ease; }
+    @keyframes stackAcceptGlow {
+      0%, 100% { box-shadow: none; }
+      40% { box-shadow: 0 0 24px rgba(13, 148, 136, 0.55); }
     }
     .stack-empty {
       width: 180px;
@@ -735,26 +983,43 @@
       text-align: center;
       font-size: 13px;
     }
-    .stack-depth-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--text-muted); }
-    .stack-warn-deep { margin-top: 8px; padding: 8px; border-radius: var(--radius-sm); background: var(--red-glow); border: 1px solid var(--red); color: var(--red); font-size: 11px; }
-    .stack-overflow-banner { margin-top: 8px; padding: 8px 10px; border-radius: var(--radius-sm); background: rgba(242, 95, 92, 0.15); border: 1px solid var(--red); color: var(--red); font-size: 12px; }
+    .stack-depth-row { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 12px; color: var(--text-muted); font-family: var(--font-sans); }
+    .stack-overflow-banner { margin-top: 8px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--rose-light); border: 1px solid var(--rose); color: var(--rose); font-size: 12px; }
 
     /* Diagram */
     .diagram-card { grid-column: 1 / -1; padding: 16px 20px 20px; }
     .diagram-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .diagram-mode-toggle {
+      display: inline-flex;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+      margin-left: 8px;
+    }
+    .diagram-mode-toggle button {
+      border: none;
+      background: var(--bg-elevated);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+    }
+    .diagram-mode-toggle button.active { background: var(--navy); color: #fff; }
     .diagram-zoom { display: flex; gap: 6px; align-items: center; }
     .diagram-zoom button {
       width: 32px;
       height: 32px;
       border-radius: 6px;
       border: 1px solid var(--border);
-      background: var(--bg-elevated);
+      background: var(--bg-surface);
       color: var(--text-secondary);
       cursor: pointer;
       font-size: 16px;
       line-height: 1;
     }
-    .diagram-zoom button:hover { background: var(--bg-hover); color: var(--text-primary); }
+    .diagram-zoom button:hover { background: var(--bg-hover); color: var(--navy); }
     .diagram-viewport {
       position: relative;
       width: 100%;
@@ -762,8 +1027,8 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-md);
       background-color: var(--bg-base);
-      background-image: radial-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-      background-size: 16px 16px;
+      background-image: radial-gradient(circle, rgba(232, 83, 58, 0.03) 1px, transparent 1px);
+      background-size: 24px 24px;
       overflow: hidden;
       cursor: grab;
     }
@@ -784,25 +1049,34 @@
     }
     .diagram-empty svg { opacity: 0.25; margin-bottom: 12px; }
     .diagram-svg { width: 100%; height: 100%; display: block; }
-    .node circle { fill: var(--bg-elevated); stroke: var(--border); stroke-width: 2; cursor: grab; }
-    .node.start > circle { stroke: var(--accent); }
-    .node.accept circle.outer { r: 22; }
-    .node.accept circle.inner { r: 18; }
-    .node.visited > circle { fill: rgba(91, 138, 245, 0.15); stroke: var(--accent); }
+    .node circle { fill: var(--navy); stroke: var(--border-bright); stroke-width: 2; cursor: grab; }
+    .node.start > circle { stroke: var(--coral); stroke-width: 2; }
+    .node.accept circle.outer { r: 22; stroke: var(--teal); }
+    .node.accept circle.inner { r: 18; fill: var(--navy); }
+    .node.visited > circle { fill: var(--navy-light); stroke: var(--coral); opacity: 0.95; }
     .node.active circle {
-      fill: var(--accent);
-      stroke: var(--accent);
+      fill: var(--coral);
+      stroke: var(--coral);
       animation: nodeBreathe 2s ease-in-out infinite;
     }
+    .node.celebrate circle {
+      animation: nodeCelebrate 0.6s ease;
+    }
     @keyframes nodeBreathe {
-      0%, 100% { filter: drop-shadow(0 0 8px rgba(91, 138, 245, 0.5)); }
-      50% { filter: drop-shadow(0 0 16px rgba(91, 138, 245, 0.85)); }
+      0%, 100% { filter: drop-shadow(0 0 6px var(--coral-glow)); }
+      50% { filter: drop-shadow(0 0 14px var(--coral-glow)); }
+    }
+    @keyframes nodeCelebrate {
+      0%, 100% { transform: scale(1); }
+      40% { transform: scale(1.3); }
     }
     .node.active text { fill: #fff; }
-    .node text { fill: var(--text-primary); font-size: 13px; font-weight: 600; }
-    .edge-path { fill: none; stroke: var(--text-muted); stroke-width: 1.5; opacity: 0.85; }
-    .edge-path.used { stroke: rgba(91, 138, 245, 0.55); stroke-width: 2; }
-    .edge-path.highlight { stroke: var(--accent); stroke-width: 2.5; stroke-dasharray: 10 8; animation: dashmove 1s linear infinite; }
+    .node text { fill: #fff; font-size: 13px; font-weight: 600; font-family: var(--font-mono); }
+    .node:not(.active):not(.visited) text { fill: var(--text-on-accent); }
+    .node:not(.active):not(.visited) circle { fill: var(--navy); }
+    .edge-path { fill: none; stroke: var(--border-bright); stroke-width: 1.5; opacity: 0.9; }
+    .edge-path.used { stroke: rgba(232, 83, 58, 0.45); stroke-width: 2; }
+    .edge-path.highlight { stroke: var(--coral); stroke-width: 3; stroke-dasharray: 10 8; animation: dashmove 1s linear infinite; }
     @keyframes dashmove { to { stroke-dashoffset: -36; } }
     .minimap {
       position: absolute;
@@ -813,7 +1087,7 @@
       border: 1px solid var(--border);
       border-radius: 6px;
       background: var(--bg-surface);
-      opacity: 0.9;
+      opacity: 0.95;
       z-index: 5;
       pointer-events: none;
     }
@@ -834,57 +1108,243 @@
       border: 1px solid var(--border);
       box-shadow: var(--shadow-card);
       font-size: 13px;
-      color: var(--text-primary);
+      color: var(--navy);
       animation: toastIn 0.3s ease;
       max-width: 320px;
     }
-    .toast.ok { border-left: 3px solid var(--green); }
-    .toast.err { border-left: 3px solid var(--red); }
+    .toast.ok { border-left: 3px solid var(--teal); }
+    .toast.err { border-left: 3px solid var(--rose); }
     @keyframes toastIn {
       from { opacity: 0; transform: translateX(24px); }
       to { opacity: 1; transform: translateX(0); }
     }
 
-    .skeleton-shimmer {
-      animation: skel 0.4s ease;
-    }
+    .skeleton-shimmer { animation: skel 0.4s ease; }
     @keyframes skel {
-      0% { opacity: 0.6; filter: brightness(1.2); }
-      50% { opacity: 1; filter: brightness(1.4); }
+      0% { opacity: 0.6; filter: brightness(1.02); }
+      50% { opacity: 1; filter: brightness(1.06); }
       100% { opacity: 1; filter: brightness(1); }
     }
 
-    .tooltip-hint { border-bottom: 1px dotted var(--text-muted); cursor: help; }
+    .learn-term {
+      border-bottom: 1px dotted var(--coral);
+      cursor: help;
+      position: relative;
+      color: var(--navy);
+      font-weight: 600;
+    }
+    .learn-tip {
+      position: absolute;
+      left: 0;
+      bottom: 100%;
+      margin-bottom: 8px;
+      width: 260px;
+      padding: 10px 12px 10px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--coral);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-card);
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--navy);
+      line-height: 1.45;
+      z-index: 400;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(6px);
+      transition: opacity 0.15s ease, transform 0.15s ease;
+    }
+    .learn-term:hover .learn-tip {
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+    .learn-tip::before { content: '\1F4A1\00a0'; }
     .file-input-hidden { display: none; }
-    .stagger-item { opacity: 0; animation: fadeInRow 0.3s ease forwards; }
+    .stagger-item { opacity: 0; animation: fadeInRow 0.35s ease forwards; }
     @keyframes fadeInRow { to { opacity: 1; } }
+
+    /* Onboarding overlay */
+    .onboard-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 35, 64, 0.45);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+    .onboard-overlay.open { opacity: 1; pointer-events: auto; }
+    .onboard-card {
+      max-width: 560px;
+      width: 100%;
+      background: var(--bg-surface);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      box-shadow: 0 24px 80px rgba(26, 35, 64, 0.2);
+      padding: 28px 32px;
+      position: relative;
+    }
+    .onboard-card h2 {
+      font-family: var(--font-display);
+      font-size: 22px;
+      color: var(--navy);
+      margin: 0 0 12px;
+    }
+    .onboard-card p { font-size: 14px; line-height: 1.65; color: var(--text-secondary); margin: 0 0 14px; }
+    .onboard-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 16px 0;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--navy);
+    }
+    .onboard-box {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      background: var(--bg-elevated);
+      text-align: center;
+      font-family: var(--font-mono);
+    }
+    .onboard-arrow { color: var(--coral); font-size: 18px; }
+    .onboard-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .onboard-skip {
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline;
+      font-family: var(--font-sans);
+    }
+    .onboard-dots { display: flex; gap: 6px; }
+    .onboard-dots span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--border);
+    }
+    .onboard-dots span.on { background: var(--coral); }
+
+    /* Reference drawer */
+    .ref-drawer {
+      position: fixed;
+      top: 64px;
+      right: 0;
+      width: min(360px, 100vw - 24px);
+      max-height: calc(100vh - 72px);
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg) 0 0 var(--radius-lg);
+      box-shadow: -12px 0 40px rgba(26, 35, 64, 0.12);
+      z-index: 450;
+      transform: translateX(104%);
+      transition: transform 0.25s ease;
+      overflow: auto;
+      padding: 16px 18px 24px;
+    }
+    .ref-drawer.open { transform: translateX(0); }
+    .ref-drawer h3 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      margin: 0 0 12px;
+      color: var(--navy);
+    }
+    .ref-drawer .ref-block { font-size: 12px; line-height: 1.55; color: var(--text-secondary); margin-bottom: 16px; }
+    .ref-drawer .ref-block strong { color: var(--navy); }
+    .ref-backdrop {
+      position: fixed;
+      inset: 0;
+      background: transparent;
+      z-index: 440;
+      display: none;
+    }
+    .ref-backdrop.show { display: block; }
+
+    @media (min-width: 1400px) {
+      .ref-drawer { transform: translateX(0); border-radius: var(--radius-lg); margin: 8px; }
+      .ref-drawer.collapsed-wide { transform: translateX(calc(100% + 20px)); }
+      .ref-backdrop { display: none !important; }
+    }
+
   </style>
 </head>
 <body>
+  <div class="ref-backdrop" id="refBackdrop" aria-hidden="true"></div>
+  <aside class="ref-drawer" id="refDrawer" aria-label="PDA reference">
+    <h3>PDA Reference</h3>
+    <div class="ref-block">
+      <strong>Formal definition.</strong> A PDA is a 7-tuple <span class="log-mono">M = (Q, &Sigma;, &Gamma;, &delta;, q<sub>0</sub>, Z<sub>0</sub>, F)</span> (standard notation).<br/><br/>
+      <strong>Q</strong> &mdash; finite set of states<br/>
+      <strong>&Sigma;</strong> &mdash; input alphabet<br/>
+      <strong>&Gamma;</strong> &mdash; stack alphabet<br/>
+      <strong>&delta;</strong> &mdash; transition function<br/>
+      <strong>q<sub>0</sub></strong> &mdash; start state<br/>
+      <strong>Z<sub>0</sub></strong> &mdash; initial stack symbol<br/>
+      <strong>F</strong> &mdash; accept states
+    </div>
+    <div class="ref-block">
+      <strong>Current PDA stats</strong><br/>
+      States: <span id="refStatStates">&mdash;</span><br/>
+      Transitions: <span id="refStatTrans">&mdash;</span><br/>
+      Stack depth: <span id="refStatStack">&mdash;</span> (max: <span id="refStatStackMax">&mdash;</span>)<br/>
+      Steps taken: <span id="refStatSteps">&mdash;</span>
+    </div>
+    <div class="ref-block">
+      <strong>Language class</strong><br/>
+      Presets illustrate context-free languages (the a<sup>n</sup>b<sup>n</sup>c<sup>n</sup> toy has no transitions and always rejects &mdash; it is not a CFL).
+    </div>
+  </aside>
+
+  <div class="onboard-overlay" id="onboardOverlay" aria-hidden="true">
+    <div class="onboard-card" role="dialog" aria-modal="true" aria-labelledby="onboardTitle">
+      <h2 id="onboardTitle">Welcome to Pushdown</h2>
+      <div id="onboardBody"></div>
+      <div class="onboard-footer">
+        <button type="button" class="onboard-skip" id="onboardSkip">Skip tour</button>
+        <div class="onboard-dots" id="onboardDots" aria-hidden="true"></div>
+        <button type="button" class="btn-coral" id="onboardNext">Next</button>
+      </div>
+    </div>
+  </div>
+
   <header>
     <div class="header-left">
-      <svg class="logo-svg" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <defs>
-          <linearGradient id="logoGrad" x1="4" y1="24" x2="28" y2="8" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#5b8af5"/><stop offset="1" stop-color="#a78bfa"/>
-          </linearGradient>
-        </defs>
-        <rect x="5" y="22" width="22" height="3.5" rx="1" stroke="url(#logoGrad)" stroke-width="2" fill="none"/>
-        <rect x="8" y="14.5" width="16" height="3.5" rx="1" stroke="url(#logoGrad)" stroke-width="2" fill="none" opacity="0.9"/>
-        <rect x="11" y="7" width="10" height="3.5" rx="1" stroke="url(#logoGrad)" stroke-width="2" fill="none" opacity="0.75"/>
-      </svg>
-      <span class="header-title">PDA Simulator</span>
-      <span class="version-pill">v1.0</span>
+      <div class="brand-block">
+        <span class="brand-title">Pushdown</span>
+        <span class="brand-sub">Pushdown Automaton Simulator</span>
+        <span class="brand-sub italic">An interactive Pushdown Automaton explorer</span>
+      </div>
+      <div class="header-divider" aria-hidden="true"></div>
+      <button type="button" class="btn-ghost-header" id="btnHowWorks">How it works</button>
     </div>
     <div class="header-center">
-      <button type="button" class="preset-trigger" id="presetTrigger" aria-expanded="false" aria-haspopup="listbox">
-        <span aria-hidden="true">⚡</span>
-        <span id="presetTriggerLabel">Load preset…</span>
-        <span class="preset-chevron">▼</span>
-      </button>
-      <div class="preset-menu" id="presetMenu" role="listbox"></div>
+      <div class="preset-segments" id="presetSegments" role="group" aria-label="Presets">
+        <button type="button" class="preset-seg" data-preset="anbn"><span class="seg-icon" aria-hidden="true">~</span> a<sup>n</sup>b<sup>n</sup></button>
+        <button type="button" class="preset-seg" data-preset="palindrome"><span class="seg-icon" aria-hidden="true">&harr;</span> Palindrome</button>
+        <button type="button" class="preset-seg" data-preset="parens"><span class="seg-icon" aria-hidden="true">( )</span> Parens</button>
+        <button type="button" class="preset-seg" data-preset="anbncn"><span class="seg-icon" aria-hidden="true">!</span> a<sup>n</sup>b<sup>n</sup>c<sup>n</sup></button>
+      </div>
     </div>
     <div class="header-right">
+      <button type="button" id="btnShare" class="btn-ghost-header" title="Copy shareable link">Share</button>
       <button type="button" id="btnImport" class="btn-ghost-header">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
         Import
@@ -894,7 +1354,7 @@
         Export
       </button>
       <input type="file" id="fileImport" class="file-input-hidden" accept="application/json" />
-      <button type="button" class="theme-glow" id="btnTheme" title="Light mode coming soon" aria-label="Theme">🌙</button>
+      <button type="button" class="btn-icon-round" id="btnRefToggle" title="PDA reference" aria-expanded="false" aria-controls="refDrawer">?</button>
     </div>
   </header>
 
@@ -905,46 +1365,60 @@
   </div>
 
   <main class="app-main">
-    <section class="card def-scroll" id="panelDef" data-panel="def">
-      <div class="section-head states"><span class="accent-bar"></span> Definition</div>
+    <section class="card def-scroll card-stagger-in" id="panelDef" data-panel="def" style="animation-delay:0ms">
+      <div class="section-head states"><span class="accent-bar"></span> PDA definition</div>
       <div>
         <div class="section-head states" style="margin-top:0"><span class="accent-bar"></span> States</div>
-        <div id="statesBody"></div>
+        <div id="statesBody" class="states-chip-wrap"></div>
         <button type="button" id="addState" class="btn-add-dashed">+ Add State</button>
       </div>
       <div style="height:1px;background:var(--border);margin:16px 0"></div>
       <div>
         <div class="section-head trans"><span class="accent-bar"></span> Transitions <span class="count-pill" id="transCountPill">0</span></div>
-        <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;line-height:1.5">
-          <span class="tooltip-hint" title="No input consumed">Input</span> empty = ε (amber). Push is <span class="tooltip-hint" title="Leftmost = new stack top">top-first</span>; leave empty after pop for ε.
+        <p style="font-size:12px;color:var(--text-muted);margin:0 0 10px;line-height:1.6">
+          <span class="learn-term">Input<span class="learn-tip">The next character read from the tape. Leave empty for an <strong>&epsilon;-transition</strong> &mdash; the machine moves without consuming input.</span></span> empty = &epsilon;. Push is <span class="learn-term">top-first<span class="learn-tip">Symbols you list are pushed so the <em>leftmost</em> becomes the new stack top.</span></span>; leave push empty after a pop for &epsilon;.
         </p>
         <div class="trans-cards" id="transBody"></div>
         <button type="button" id="addTrans" class="btn-add-dashed" style="margin-top:8px">+ Add Transition</button>
       </div>
     </section>
 
-    <section class="card" id="panelSim" data-panel="sim">
+    <section class="card card-stagger-in" id="panelSim" data-panel="sim" style="animation-delay:80ms">
       <div class="section-head states"><span class="accent-bar"></span> Simulation</div>
-      <div id="simTokenRow" class="sim-token-area" tabindex="0" aria-label="Input tokens"></div>
-      <div class="sim-position" id="simPosition">Position — of —</div>
-      <input type="text" class="sim-input-field" id="simInputField" placeholder="Type input string… focus token row or click here" autocomplete="off" />
+      <div id="langBadges" class="lang-badges" style="display:none"></div>
+      <div id="presetExplainCard" class="preset-explain-card" style="display:none"></div>
+      <div class="input-string-panel">
+        <div class="input-string-head">
+          <span>Input string <span class="learn-term" style="font-weight:400;text-transform:none;letter-spacing:0">?<span class="learn-tip">Type symbols from your alphabet. Chips show which characters are consumed vs still to read.</span></span></span>
+          <span class="input-valid-pill" id="inputValidPill"></span>
+        </div>
+        <input type="text" class="sim-input-field" id="simInputField" placeholder="Type your string..." autocomplete="off" />
+        <div id="simTokenRow" class="sim-token-area" tabindex="0" aria-label="Input tokens"></div>
+        <div class="token-legend" id="tokenLegend">Consumed &middot; pulse = current &middot; remaining</div>
+        <div class="smart-hint" id="smartHint" style="display:none"></div>
+      </div>
+      <div class="sim-position" id="simPosition">Position &mdash; of &mdash;</div>
       <div class="controls-row">
-        <button type="button" id="btnReset" class="btn-reset">⏮ Reset <span class="kbd">R</span></button>
-        <button type="button" id="btnBack" class="btn-step">◀ Back</button>
-        <button type="button" id="btnStep" class="btn-step">▶ Step <span class="kbd">Space</span></button>
-        <button type="button" id="btnRun" class="btn-run">▶▶ Run <span class="kbd">Enter</span></button>
+        <button type="button" id="btnReset" class="btn-reset">Reset <span class="kbd">R</span></button>
+        <button type="button" id="btnBack" class="btn-step">Back</button>
+        <button type="button" id="btnStep" class="btn-step">Step <span class="kbd">Space</span></button>
+        <button type="button" id="btnRun" class="btn-run">Run <span class="kbd">Enter</span></button>
       </div>
       <div class="speed-row">
         <span style="color:var(--text-muted);font-size:13px">Speed</span>
         <input type="range" id="speedRange" min="100" max="2000" step="50" value="500" />
-        <span id="speedLabel" style="font-family:ui-monospace,monospace;font-size:13px;color:var(--text-secondary)">500ms</span>
+        <span id="speedLabel" style="font-family:var(--font-mono);font-size:13px;color:var(--text-secondary)">500ms</span>
         <label class="auto-run-label"><input type="checkbox" id="autoRun" /> Auto-run</label>
       </div>
       <div id="resultBanner" class="banner" role="status"></div>
       <div id="bfsWarn" class="warn-box" style="display:none"></div>
       <div class="log-header-row">
-        <div class="section-head states" style="margin:0"><span class="accent-bar"></span> Configuration log</div>
-        <span class="log-step-badge" id="logStepBadge">Step — / —</span>
+        <div class="section-head states" style="margin:0"><span class="accent-bar"></span> Trace</div>
+        <div class="sim-view-toggle" role="tablist">
+          <button type="button" class="active" id="btnViewLog" role="tab" aria-selected="true">Step log</button>
+          <button type="button" id="btnViewTree" role="tab" aria-selected="false">Computation tree</button>
+        </div>
+        <span class="log-step-badge" id="logStepBadge">Step &mdash; / &mdash;</span>
       </div>
       <div class="log-table-wrap" id="logWrap">
         <table class="log-table">
@@ -960,23 +1434,42 @@
           <tbody id="logBody"></tbody>
         </table>
       </div>
+      <div id="compTreeHost" class="comp-tree-view" style="display:none" aria-live="polite"></div>
       <div id="branchArea"></div>
+      <div class="step-explain-card" id="stepExplainCard">
+        <div class="step-explain-head">What just happened?</div>
+        <div class="step-explain-body" id="stepExplainBody">Step through the simulation to see a plain-English narration of each transition.</div>
+      </div>
+      <details class="test-suite" id="testSuite">
+        <summary>
+          Test suite
+          <span class="test-suite-actions">
+            <button type="button" class="btn-ghost-header" id="btnAddTest" style="padding:4px 10px;font-size:12px">+ Add test</button>
+            <button type="button" class="btn-coral" id="btnRunAllTests" style="padding:6px 12px;font-size:12px">Run all</button>
+          </span>
+        </summary>
+        <table class="test-table">
+          <thead><tr><th>Input</th><th>Expected</th><th>Result</th></tr></thead>
+          <tbody id="testTableBody"></tbody>
+        </table>
+        <div class="test-progress" id="testProgress"></div>
+      </details>
     </section>
 
-    <section class="card stack-panel" id="panelStack" data-panel="stack">
+    <section class="card stack-panel card-stagger-in" id="panelStack" data-panel="stack" style="animation-delay:160ms">
       <div class="stack-head-row">
         <span class="accent-bar"></span>
-        <span style="font-size:11px;font-weight:600;letter-spacing:0.08em;color:var(--text-muted);text-transform:uppercase">Stack</span>
+        <span class="stack-label">Stack</span>
         <svg class="stack-icon-anim" id="stackIconAnim" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-          <rect class="bar1" x="4" y="16" width="16" height="3" rx="1" fill="var(--purple)"/>
-          <rect class="bar2" x="6" y="10" width="12" height="3" rx="1" fill="var(--accent)"/>
-          <rect class="bar3" x="8" y="4" width="8" height="3" rx="1" fill="var(--text-muted)"/>
+          <rect class="bar1" x="4" y="16" width="16" height="3" rx="1" fill="#7c3aed"/>
+          <rect class="bar2" x="6" y="10" width="12" height="3" rx="1" fill="#e8533a"/>
+          <rect class="bar3" x="8" y="4" width="8" height="3" rx="1" fill="#9aa3b2"/>
         </svg>
       </div>
       <div class="stack-visual" id="stackVisual">
         <div class="stack-spine"></div>
         <div class="stack-main">
-          <div class="stack-arrow">top</div>
+          <div class="stack-arrow"><span class="learn-term">Stack top<span class="learn-tip">The stack top is the symbol currently visible at the top of the stack. Like the top card of a deck &mdash; you can only see and act on the top card.</span></span></div>
           <div class="stack-cells" id="stackCells"></div>
         </div>
       </div>
@@ -985,15 +1478,21 @@
         Depth: <strong id="stackDepth" style="color:var(--text-secondary)">0</strong>
       </div>
       <p id="stackDeepWarn" style="display:none;font-size:11px;color:var(--amber);margin:6px 0 0">Stack growing deep</p>
-      <div id="stackOverflowBanner" class="stack-overflow-banner" style="display:none">Stack depth exceeds 20 — check for loops.</div>
+      <div id="stackOverflowBanner" class="stack-overflow-banner" style="display:none">Stack depth exceeds 20 &mdash; check for loops.</div>
     </section>
 
-    <section class="card diagram-card">
+    <section class="card diagram-card card-stagger-in" style="animation-delay:240ms">
       <div class="diagram-toolbar">
-        <div class="section-head states" style="margin:0"><span class="accent-bar"></span> State diagram</div>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px">
+          <div class="section-head states" style="margin:0"><span class="accent-bar"></span> State diagram</div>
+          <div class="diagram-mode-toggle" role="group" aria-label="Diagram label mode">
+            <button type="button" class="active" id="btnDiagRaw">Diagram</button>
+            <button type="button" id="btnDiagExplain">Explained</button>
+          </div>
+        </div>
         <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
           <div class="diagram-zoom">
-            <button type="button" id="diagramZoomOut" title="Zoom out">−</button>
+            <button type="button" id="diagramZoomOut" title="Zoom out">&minus;</button>
             <button type="button" id="diagramZoomIn" title="Zoom in">+</button>
           </div>
           <button type="button" id="btnFitView" class="btn-ghost-header" title="Fit graph in view">Fit view</button>
@@ -1013,10 +1512,10 @@
         <svg class="diagram-svg" id="diagramSvg" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <marker id="arrowhead" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 z" fill="#525d72" />
+              <path d="M0,0 L8,4 L0,8 z" fill="#b8b0a0" />
             </marker>
             <marker id="arrowheadActive" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
-              <path d="M0,0 L8,4 L0,8 z" fill="#5b8af5" />
+              <path d="M0,0 L8,4 L0,8 z" fill="#e8533a" />
             </marker>
           </defs>
           <g id="panGroup">
@@ -1028,6 +1527,7 @@
       </div>
     </section>
   </main>
+
   <div class="toast-container" id="toastContainer" aria-live="polite"></div>
 
   <script>
@@ -1037,6 +1537,8 @@
   const STORAGE_PDA = 'pda_sim_definition_v1';
   const STORAGE_POS = 'pda_sim_positions_v1';
   const BFS_CAP = 10000;
+  const STORAGE_ONBOARD = 'pushdown_onboard_done_v1';
+  const STORAGE_TESTS = 'pushdown_custom_tests_v1';
 
   /** @typedef {{ id: string, name: string, isStart: boolean, isAccept: boolean }} State */
   /** @typedef {{ from: string, input: string, stackTop: string, to: string, push: string[] }} Transition */
@@ -1130,6 +1632,13 @@
   let diagramZoom = 1;
   let diagramPan = { x: 0, y: 0 };
   let diagramDrag = null;
+  let currentPresetKey = /** @type {string|null} */ (null);
+  let selectedStateName = /** @type {string|null} */ (null);
+  let diagramExplained = false;
+  let simTraceView = 'log';
+  let lastBfsNodes = /** @type {null | any[]} */ (null);
+  let maxStackDepthSeen = 0;
+  let customTests = /** @type {{ input: string, expect: 'accept'|'reject' }[]} */ ([]);
 
   const PRESET_META = {
     anbn: { title: 'aⁿbⁿ recognizer', desc: 'Classic balanced aⁿbⁿ using stack', tag: 'cf', key: 'anbn' },
@@ -1137,6 +1646,88 @@
     parens: { title: 'Balanced ( )', desc: 'Push on (, pop on )', tag: 'cfl', key: 'parens' },
     anbncn: { title: 'aⁿbⁿcⁿ demo', desc: 'Not context-free — always reject', tag: 'non', key: 'anbncn' },
   };
+
+
+  const PRESET_DETAILS = {
+    anbn: {
+      title: 'a^n b^n language recognizer',
+      body: "Recognizes strings with n a's followed by n b's. Example valid inputs: ab, aabb, aaabbb. Example invalid: abb, aab, ba.",
+      why: "Regular expressions cannot count, so they cannot ensure equal a's and b's. The stack acts as a counter.",
+      tryInput: 'aabb',
+    },
+    palindrome: {
+      title: 'Palindrome over {a,b}',
+      body: 'Accepts strings that read the same forwards and backwards, e.g. aba, baab, abba.',
+      why: 'The PDA pushes the first half, then nondeterministically guesses the middle and matches the second half against the stack.',
+      tryInput: 'abba',
+    },
+    parens: {
+      title: 'Balanced parentheses',
+      body: 'Valid: (), (()), ()(). Invalid: )( , ((.',
+      why: 'Each "(" is pushed; each ")" pops a matching "(". The stack tracks nesting depth.',
+      tryInput: '(())',
+    },
+    anbncn: {
+      title: 'a^n b^n c^n (demo)',
+      body: 'This toy machine has no transitions — every nonempty input is rejected. True a^n b^n c^n is not context-free.',
+      why: 'A single stack cannot match three equal counts; the full language requires more power than a PDA.',
+      tryInput: 'abc',
+    },
+  };
+
+  const PRESET_TESTS = {
+    anbn: [
+      { input: 'ab', expect: 'accept' },
+      { input: 'aabb', expect: 'accept' },
+      { input: 'aab', expect: 'reject' },
+      { input: 'abb', expect: 'reject' },
+      { input: 'aaabbb', expect: 'accept' },
+    ],
+    palindrome: [
+      { input: 'aba', expect: 'accept' },
+      { input: 'abba', expect: 'accept' },
+      { input: 'ab', expect: 'reject' },
+      { input: 'aab', expect: 'reject' },
+    ],
+    parens: [
+      { input: '()', expect: 'accept' },
+      { input: '(())', expect: 'accept' },
+      { input: ')(', expect: 'reject' },
+      { input: '((', expect: 'reject' },
+    ],
+    anbncn: [
+      { input: '', expect: 'reject' },
+      { input: 'abc', expect: 'reject' },
+    ],
+  };
+
+  const LANGUAGE_PROPS = {
+    anbn: [
+      { id: 'cfl', label: 'CFL', ok: true, tip: 'This language is context-free: a PDA can recognize it with one stack.' },
+      { id: 'det', label: 'Deterministic', ok: false, tip: 'This construction uses nondeterminism (epsilon shortcuts). Many CFLs need it.' },
+      { id: 'esa', label: 'Final-state accept', ok: true, tip: 'Acceptance is by final state with all input read.' },
+      { id: 'reg', label: 'Regular', ok: false, tip: 'This language is not regular — no finite automaton can match a^n b^n.' },
+    ],
+    palindrome: [
+      { id: 'cfl', label: 'CFL', ok: true, tip: 'Palindromes over a finite alphabet form a context-free language.' },
+      { id: 'det', label: 'Deterministic', ok: false, tip: 'Guessing the midpoint is inherently nondeterministic.' },
+      { id: 'esa', label: 'Accept state', ok: true, tip: 'Accept when the automaton reaches an accept configuration.' },
+      { id: 'reg', label: 'Regular', ok: false, tip: 'Palindrome language is a classic non-regular example.' },
+    ],
+    parens: [
+      { id: 'cfl', label: 'CFL', ok: true, tip: 'Dyck language of balanced brackets is context-free.' },
+      { id: 'det', label: 'Deterministic', ok: true, tip: 'This one-state construction is deterministic for this grammar.' },
+      { id: 'esa', label: 'Final-state accept', ok: true, tip: 'Accept after reading all input with proper stack.' },
+      { id: 'reg', label: 'Regular', ok: false, tip: 'Balanced nesting requires counting — not regular.' },
+    ],
+    anbncn: [
+      { id: 'cfl', label: 'CFL', ok: false, tip: 'a^n b^n c^n is not context-free (pumping lemma on CFGs).' },
+      { id: 'det', label: 'Deterministic', ok: true, tip: 'Trivially deterministic — no transitions to choose.' },
+      { id: 'esa', label: 'Empty stack', ok: false, tip: 'This demo does not implement true empty-stack acceptance for the language.' },
+      { id: 'reg', label: 'Regular', ok: false, tip: 'Not regular either.' },
+    ],
+  };
+
 
   function showToast(msg, ok) {
     const c = el('toastContainer');
@@ -1154,19 +1745,35 @@
     });
   }
 
-  function buildPresetMenu() {
-    const menu = el('presetMenu');
-    if (!menu) return;
-    menu.innerHTML = '';
-    Object.keys(PRESET_META).forEach(k => {
-      const m = PRESET_META[k];
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.className = 'preset-item';
-      b.setAttribute('data-preset', k);
-      const tagClass = m.tag === 'cfl' ? 'cfl' : m.tag === 'non' ? 'non' : 'cf';
-      b.innerHTML = `<div class="preset-item-title">${escapeHtml(m.title)} <span class="tag-pill ${tagClass}">${m.tag === 'cfl' ? 'CFL' : m.tag === 'non' ? 'Non-CFL' : 'Regular'}</span></div><div class="preset-item-desc">${escapeHtml(m.desc)}</div>`;
-      menu.appendChild(b);
+  function setPresetActiveUI(key) {
+    document.querySelectorAll('.preset-seg').forEach(b => {
+      b.classList.toggle('active', b.getAttribute('data-preset') === key);
+    });
+  }
+
+  function applyPreset(key) {
+    if (!PRESETS[key]) return;
+    flashSkeleton();
+    pda = PRESETS[key]();
+    currentPresetKey = key;
+    savePDA();
+    setPresetActiveUI(key);
+    loadTestsForPreset(key);
+    staggerTables();
+    renderStates(); renderTransitions(); resetSim();
+    updatePresetExplainCard();
+    updateLangBadges();
+    fitDiagramToContent();
+    renderDiagram();
+  }
+
+  function wirePresetSegments() {
+    const seg = el('presetSegments');
+    if (!seg) return;
+    seg.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-preset]');
+      if (!b) return;
+      applyPreset(b.getAttribute('data-preset'));
     });
   }
 
@@ -1300,7 +1907,7 @@
 
   function runBFS2(inputStr) {
     const startName = getStartStateName();
-    if (!startName) return { error: 'No start state', path: null, explored: 0, truncated: false, rejected: true, accepted: false };
+    if (!startName) return { error: 'No start state', path: null, explored: 0, truncated: false, rejected: true, accepted: false, bfsNodes: null };
 
     const start = { state: startName, remainingInput: inputStr, stack: [Z0] };
     /** @type {{ cfg: any, parent: number, transIndex: number, t: any }[]} */
@@ -1319,11 +1926,12 @@
       }
       enqueued.add(nk);
       const newIdx = nodes.length;
-      nodes.push({ cfg, parent: parentIdx, transIndex, t });
+      nodes.push({ cfg, parent: parentIdx, transIndex, t, children: [] });
+      if (parentIdx >= 0) nodes[parentIdx].children.push(newIdx);
       queue.push(newIdx);
     }
 
-    nodes.push({ cfg: start, parent: -1, transIndex: -1, t: null });
+    nodes.push({ cfg: start, parent: -1, transIndex: -1, t: null, children: [] });
     enqueued.add(configKey(start));
     queue.push(0);
 
@@ -1365,7 +1973,7 @@
             transIndex: transIdx,
           };
         });
-        return { error: null, path: rich, explored: nodes.length, truncated, rejected: false, accepted: true };
+        return { error: null, path: rich, explored: nodes.length, truncated, rejected: false, accepted: true, bfsNodes: nodes };
       }
 
       const succs = getSuccessors(item.cfg);
@@ -1380,7 +1988,7 @@
       branches: getSuccessors(start).map(s => ({ cfg: s.next, desc: describeActionPlain(start, s.t) })),
       transIndex: -1,
     }];
-    return { error: null, path: failPath, explored: nodes.length, truncated, rejected: true, accepted: false };
+    return { error: null, path: failPath, explored: nodes.length, truncated, rejected: true, accepted: false, bfsNodes: nodes };
   }
 
   function computeSimulation(inputStr) {
@@ -1394,24 +2002,56 @@
     const wrap = el('statesBody');
     wrap.innerHTML = '';
     const activeNames = simPath && stepIndex < simPath.length ? [simPath[stepIndex].config.state] : [];
+    let dragId = null;
     pda.states.forEach((s) => {
-      const row = document.createElement('div');
-      row.className = 'state-row' + (activeNames.includes(s.name) ? ' active-sim' : '');
-      const dotPulse = activeNames.includes(s.name) ? ' pulse' : '';
-      row.innerHTML = `
-        <div class="state-dot${dotPulse}"></div>
-        <div class="state-name-wrap"><input type="text" class="state-name-input" data-id="${s.id}" value="${escapeHtml(s.name)}" aria-label="State name" /></div>
-        <button type="button" class="badge-s ${s.isStart ? 'on' : ''}" data-act="start" data-id="${s.id}" title="Start">S</button>
-        <button type="button" class="badge-a ${s.isAccept ? 'on' : ''}" data-act="accept" data-id="${s.id}" title="Accept">A</button>
-        <div class="state-menu-wrap">
-          <button type="button" class="state-menu-btn" data-menu="${s.id}" aria-label="Menu">···</button>
-          <div class="state-dropdown" id="menu-${s.id}">
-            <button type="button" data-del="state" data-id="${s.id}">Delete state</button>
-          </div>
+      const chip = document.createElement('div');
+      chip.className = 'state-chip';
+      chip.draggable = true;
+      chip.dataset.stateId = s.id;
+      if (s.isStart) chip.classList.add('is-start');
+      if (s.isAccept) chip.classList.add('is-accept');
+      if (activeNames.includes(s.name)) chip.classList.add('active-sim');
+      if (selectedStateName === s.name) chip.classList.add('selected');
+      const sb = s.isStart ? '<span class="state-chip-badge">Start</span>' : '';
+      const ab = s.isAccept ? '<span class="state-chip-badge accept-badge">Accept</span>' : '';
+      chip.innerHTML = `
+        <div class="state-chip-row-inner">
+          <span class="state-chip-dot"></span>
+          <input type="text" class="state-chip-name" data-id="${s.id}" value="${escapeHtml(s.name)}" aria-label="State name" />
+        </div>
+        ${sb}${ab}
+        <div class="state-chip-tools">
+          <button type="button" class="${s.isStart ? 'on-s' : ''}" data-act="start" data-id="${s.id}" title="Start">S</button>
+          <button type="button" class="${s.isAccept ? 'on-a' : ''}" data-act="accept" data-id="${s.id}" title="Accept">A</button>
+          <button type="button" data-del="state" data-id="${s.id}" title="Delete">\u2715</button>
         </div>`;
-      wrap.appendChild(row);
+      chip.addEventListener('click', (e) => {
+        if (e.target.closest('input') || e.target.closest('button')) return;
+        selectedStateName = s.name;
+        renderStates();
+        renderDiagram();
+      });
+      chip.addEventListener('dragstart', (ev) => {
+        dragId = s.id;
+        chip.classList.add('dragging');
+        ev.dataTransfer.effectAllowed = 'move';
+      });
+      chip.addEventListener('dragend', () => { chip.classList.remove('dragging'); dragId = null; });
+      chip.addEventListener('dragover', (ev) => { ev.preventDefault(); ev.dataTransfer.dropEffect = 'move'; });
+      chip.addEventListener('drop', (ev) => {
+        ev.preventDefault();
+        if (!dragId || dragId === s.id) return;
+        const fromI = pda.states.findIndex(x => x.id === dragId);
+        const toI = pda.states.findIndex(x => x.id === s.id);
+        if (fromI < 0 || toI < 0) return;
+        const [rm] = pda.states.splice(fromI, 1);
+        pda.states.splice(toI, 0, rm);
+        savePDA();
+        renderStates();
+      });
+      wrap.appendChild(chip);
     });
-    wrap.querySelectorAll('.state-name-input').forEach(inp => {
+    wrap.querySelectorAll('.state-chip-name').forEach(inp => {
       inp.addEventListener('change', () => {
         const id = inp.dataset.id;
         const st = pda.states.find(x => x.id === id);
@@ -1423,31 +2063,25 @@
       });
     });
     wrap.querySelectorAll('[data-act="start"]').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = btn.dataset.id;
         pda.states.forEach(s => { s.isStart = s.id === id; });
         savePDA(); renderStates(); renderTransitions(); renderDiagram();
       });
     });
     wrap.querySelectorAll('[data-act="accept"]').forEach(btn => {
-      btn.addEventListener('click', () => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
         const id = btn.dataset.id;
         const st = pda.states.find(x => x.id === id);
         if (st) st.isAccept = !st.isAccept;
         savePDA(); renderStates(); renderDiagram();
       });
     });
-    wrap.querySelectorAll('.state-menu-btn').forEach(btn => {
+    wrap.querySelectorAll('[data-del="state"]').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const id = btn.dataset.menu;
-        const dd = el('menu-' + id);
-        document.querySelectorAll('.state-dropdown').forEach(d => { if (d !== dd) d.classList.remove('open'); });
-        dd.classList.toggle('open');
-      });
-    });
-    wrap.querySelectorAll('[data-del="state"]').forEach(btn => {
-      btn.addEventListener('click', () => {
         const id = btn.dataset.id;
         if (pda.states.length <= 1) return;
         pda.states = pda.states.filter(x => x.id !== id);
@@ -1504,6 +2138,7 @@
       if (inv) { card.classList.add('invalid'); card.title = inv; }
       if (hoveredTransIndex === idx) card.classList.add('hover-sync');
       if (activeTI === idx) card.classList.add('active-step');
+      card.classList.add(transitionOpClass(t));
       const inpVal = t.input && t.input !== EPS ? t.input : '';
       const inpClass = !inpVal ? 'tin eps-input' : 'tin';
       const inpPh = !inpVal ? 'ε' : '';
@@ -1549,8 +2184,12 @@
   el('addState').onclick = () => {
     const id = 's' + Math.random().toString(36).slice(2, 8);
     pda.states.push({ id, name: 'q' + pda.states.length, isStart: false, isAccept: false });
+    currentPresetKey = null;
+    setPresetActiveUI('');
     savePDA();
     renderStates(); renderTransitions(); renderDiagram();
+    updatePresetExplainCard();
+    updateLangBadges();
   };
 
   el('addTrans').onclick = () => {
@@ -1573,6 +2212,294 @@
 
   function escapeHtml(s) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+  }
+
+  function loadTestsFromStorage() {
+    try {
+      const raw = localStorage.getItem(STORAGE_TESTS);
+      customTests = raw ? JSON.parse(raw) : [];
+    } catch (_) { customTests = []; }
+  }
+  function saveTestsToStorage() {
+    localStorage.setItem(STORAGE_TESTS, JSON.stringify(customTests));
+  }
+
+  function loadTestsForPreset(key) {
+    customTests = (PRESET_TESTS[key] || []).map(t => ({ ...t }));
+    saveTestsToStorage();
+    renderTestTable();
+  }
+
+  function transitionOpClass(t) {
+    const isEps = !t.input || t.input === EPS || t.input === '';
+    const push = normalizePush(t.push);
+    if (isEps && push.length === 0) return 'op-eps';
+    if (isEps && push.length > 0) return 'op-mix';
+    if (!isEps && push.length === 0) return 'op-pop';
+    return 'op-push';
+  }
+
+  function edgeLabelEnglish(t) {
+    const isEps = !t.input || t.input === EPS || t.input === '';
+    const push = normalizePush(t.push);
+    const pushPhrase = push.length
+      ? ('push ' + push.map(x => "'" + x + "'").join(' then ') + ' (left becomes new top)')
+      : 'pop only (nothing pushed back)';
+    if (isEps) {
+      return "Epsilon: top was '" + t.stackTop + "', " + pushPhrase + ", go to " + t.to + ".";
+    }
+    return "Read '" + t.input + "' with top '" + t.stackTop + "', then " + pushPhrase + ", go to " + t.to + ".";
+  }
+
+  function buildStepExplanation(prevCfg, node, transIndex) {
+    if (!node || !node.t || transIndex < 0) {
+      return 'This is the starting configuration: input left to read is shown as remaining, and the stack holds only the bottom marker Z\u2080.';
+    }
+    const t = node.t;
+    const isEps = !t.input || t.input === EPS || t.input === '';
+    const push = normalizePush(t.push);
+    const oldTop = prevCfg.stack[0];
+    const lines = [];
+    lines.push('The automaton ' + (isEps ? 'took an <strong>&epsilon;-transition</strong> (no input consumed)' : "read <strong>'" + escapeHtml(t.input) + "'</strong> from the input") + " and matched stack top <strong>" + escapeHtml(oldTop) + '</strong>.');
+    lines.push('Rule <span class="log-mono">' + escapeHtml(t.from) + ' \u2192 ' + escapeHtml(t.to) + '</span> with label <span class="log-mono">' + escapeHtml(describeActionPlain(prevCfg, t)) + '</span> fired. So it:');
+    const steps = [];
+    if (!isEps) steps.push("Consumed '" + escapeHtml(t.input) + "' from the front of the remaining input.");
+    else steps.push('Did not consume input (free move).');
+    steps.push('Popped <strong>' + escapeHtml(oldTop) + '</strong> from the stack.');
+    if (push.length) steps.push('Pushed ' + escapeHtml(push.join(' ')) + ' (leftmost is new top), so the stack is now <strong>[' + escapeHtml(node.cfg.stack.join(', ')) + ']</strong>.');
+    else steps.push('Pushed nothing (after the implicit pop), so the stack is <strong>[' + escapeHtml(node.cfg.stack.join(', ')) + ']</strong>.');
+    steps.push('Moved to state <strong>' + escapeHtml(node.cfg.state) + '</strong>.');
+    return lines.join(' ') + '<ol>' + steps.map(s => '<li>' + s + '</li>').join('') + '</ol>';
+  }
+
+  function renderStepExplain() {
+    const card = el('stepExplainCard');
+    const body = el('stepExplainBody');
+    if (!card || !body) return;
+    card.classList.add('refreshing');
+    setTimeout(() => {
+      if (!simPath || stepIndex < 0 || stepIndex >= simPath.length) {
+        body.innerHTML = 'Step through the simulation to see a plain-English narration of each transition.';
+      } else if (stepIndex === 0) {
+        body.innerHTML = buildStepExplanation(null, null, -1);
+      } else {
+        const cur = simPath[stepIndex];
+        const prev = simPath[stepIndex - 1];
+        body.innerHTML = buildStepExplanation(prev.config, { cfg: cur.config, t: pda.transitions[cur.transIndex] }, cur.transIndex);
+      }
+      card.classList.remove('refreshing');
+    }, 50);
+  }
+
+  function updateRefPanel() {
+    const rs = el('refStatStates');
+    const rt = el('refStatTrans');
+    const rsd = el('refStatStack');
+    const rsm = el('refStatStackMax');
+    const rst = el('refStatSteps');
+    if (rs) rs.textContent = String(pda.states.length);
+    if (rt) rt.textContent = String(pda.transitions.length);
+    const d = simPath && simPath[stepIndex] ? simPath[stepIndex].config.stack.length : 0;
+    if (rsd) rsd.textContent = String(d);
+    if (rsm) rsm.textContent = String(maxStackDepthSeen);
+    if (rst) rst.textContent = simPath ? String(stepIndex) : '0';
+  }
+
+  function updateSmartHint() {
+    const h = el('smartHint');
+    const pill = el('inputValidPill');
+    if (!h || !pill) return;
+    const bad = [...inputString].some(c => !allowedInputChars().has(c));
+    if (bad) {
+      pill.textContent = 'Invalid character';
+      pill.className = 'input-valid-pill bad';
+    } else if (inputString.length) {
+      pill.textContent = 'Alphabet OK';
+      pill.className = 'input-valid-pill';
+    } else {
+      pill.textContent = '';
+      pill.className = 'input-valid-pill';
+    }
+    if (!currentPresetKey) {
+      h.style.display = 'none';
+      return;
+    }
+    const s = inputString;
+    if (currentPresetKey === 'anbn') {
+      const na = (s.match(/a/g) || []).length;
+      const nb = (s.match(/b/g) || []).length;
+      const rest = s.replace(/a/g, '').replace(/b/g, '');
+      let msg = '';
+      if (rest) msg = 'Only a and b matter for this preset; extra symbols may cause rejection.';
+      else if (na === nb && s.indexOf('b') >= 0 && s.lastIndexOf('a') < s.indexOf('b')) msg = "Same number of a's and b's with all a before b — likely accepted.";
+      else if (na !== nb) msg = 'Different counts of a and b — the a^n b^n machine will reject.';
+      else msg = 'Pattern hint: you need n copies of a then n copies of b.';
+      h.textContent = msg;
+      h.style.display = 'block';
+      return;
+    }
+    if (currentPresetKey === 'parens') {
+      let bal = 0;
+      let ok = true;
+      for (const c of s) {
+        if (c === '(') bal++;
+        else if (c === ')') { bal--; if (bal < 0) ok = false; }
+      }
+      h.textContent = ok && bal === 0 ? 'Parentheses look balanced so far.' : 'Watch nesting: every ) needs a matching ( earlier.';
+      h.style.display = 'block';
+      return;
+    }
+    h.style.display = 'none';
+  }
+
+  function updatePresetExplainCard() {
+    const card = el('presetExplainCard');
+    if (!card) return;
+    if (!currentPresetKey || !PRESET_DETAILS[currentPresetKey]) {
+      card.style.display = 'none';
+      return;
+    }
+    const d = PRESET_DETAILS[currentPresetKey];
+    card.style.display = 'block';
+    const ex = PRESET_DETAILS[currentPresetKey].tryInput || '';
+    card.innerHTML = '<h3>' + escapeHtml(d.title) + '</h3><p>' + escapeHtml(d.body) + '</p><p><strong>Why a PDA?</strong> ' + escapeHtml(d.why) + '</p><div class="preset-explain-actions">Try <span class="log-mono">' + escapeHtml(ex) + '</span> <button type="button" class="btn-coral" id="btnLoadRunPreset">Load &amp; Run</button></div>';
+    const btn = el('btnLoadRunPreset');
+    if (btn) {
+      btn.onclick = () => {
+        inputString = ex;
+        el('simInputField').value = ex;
+        renderSimInput();
+        el('btnRun').click();
+      };
+    }
+  }
+
+  function updateLangBadges() {
+    const wrap = el('langBadges');
+    if (!wrap) return;
+    if (!currentPresetKey || !LANGUAGE_PROPS[currentPresetKey]) {
+      wrap.style.display = 'none';
+      wrap.innerHTML = '';
+      return;
+    }
+    wrap.style.display = 'flex';
+    wrap.innerHTML = LANGUAGE_PROPS[currentPresetKey].map(p => {
+      return '<span class="lang-badge ' + (p.ok ? 'ok' : 'no') + ' learn-term">' + escapeHtml(p.label) + (p.ok ? ' \u2713' : ' \u2717') + '<span class="learn-tip">' + escapeHtml(p.tip) + '</span></span>';
+    }).join('');
+  }
+
+  function renderTestTable() {
+    const tb = el('testTableBody');
+    if (!tb) return;
+    tb.innerHTML = '';
+    customTests.forEach((row, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td class="log-mono">' + escapeHtml(row.input) + '</td><td>' + escapeHtml(row.expect) + '</td><td class="test-res" data-i="' + i + '">&mdash;</td>';
+      tb.appendChild(tr);
+    });
+    el('testProgress').textContent = '';
+  }
+
+  function runAllTests() {
+    let pass = 0;
+    customTests.forEach((row, i) => {
+      const r = computeSimulation(row.input);
+      const ok = r.accepted === (row.expect === 'accept');
+      if (ok) pass++;
+      const cell = document.querySelector('.test-res[data-i="' + i + '"]');
+      if (cell) cell.textContent = ok ? '\u2713 Passed' : '\u2717 Failed';
+    });
+    const pct = customTests.length ? Math.round(100 * pass / customTests.length) : 0;
+    el('testProgress').innerHTML = pass + '/' + customTests.length + ' tests passed <div class="test-bar"><i style="width:' + pct + '%"></i></div>';
+  }
+
+  function renderCompTree() {
+    const host = el('compTreeHost');
+    if (!host || !lastBfsNodes || !lastBfsNodes.length) {
+      if (host) host.textContent = 'Run the simulation to build a BFS tree of configurations.';
+      return;
+    }
+    function cfgLine(cfg) {
+      return cfg.state + ' \u2014 ' + (cfg.remainingInput || '\u03b5') + ' \u2014 [' + cfg.stack.join(', ') + ']';
+    }
+    function walk(idx, depth, lines) {
+      const n = lastBfsNodes[idx];
+      if (!n) return;
+      const pad = '  '.repeat(depth);
+      const acc = isAccepting(n.cfg);
+      let line = pad + '\u2022 ' + cfgLine(n.cfg);
+      if (n.parent >= 0 && n.t) {
+        line += '  \u2190 via ' + describeActionPlain(lastBfsNodes[n.parent].cfg, n.t);
+      }
+      if (acc) line += '  \u2192 ACCEPT';
+      lines.push({ line, cls: acc ? 'accept' : 'norm' });
+      (n.children || []).forEach(c => walk(c, depth + 1, lines));
+    }
+    const out = [];
+    walk(0, 0, out);
+    host.innerHTML = out.map(o => '<div class="comp-tree-line ' + o.cls + '">' + escapeHtml(o.line) + '</div>').join('');
+  }
+
+  function sharePdaUrl() {
+    const json = JSON.stringify(pda);
+    const b64 = btoa(unescape(encodeURIComponent(json)));
+    const url = location.origin + location.pathname + location.search + '#p=' + encodeURIComponent(b64);
+    navigator.clipboard.writeText(url).then(() => showToast('Share link copied', true), () => showToast('Copy failed', false));
+  }
+
+  function tryLoadFromHash() {
+    const h = location.hash.replace(/^#/, '');
+    if (!h.startsWith('p=')) return;
+    try {
+      const raw = decodeURIComponent(h.slice(2));
+      const json = decodeURIComponent(escape(atob(raw)));
+      pda = JSON.parse(json);
+      currentPresetKey = null;
+      setPresetActiveUI('');
+      savePDA();
+      renderStates(); renderTransitions(); resetSim();
+      fitDiagramToContent();
+      renderDiagram();
+      showToast('Loaded PDA from link', true);
+      history.replaceState(null, '', location.pathname + location.search);
+    } catch (_) {
+      showToast('Invalid share link', false);
+    }
+  }
+
+  let onboardStep = 0;
+  const ONBOARD_SLIDES = [
+    { title: 'What is a PDA?', html: '<p>A Pushdown Automaton is like a finite automaton with a stack &mdash; unlimited memory for matching patterns regular expressions cannot handle (for example a<sup>n</sup>b<sup>n</sup>).</p><div class="onboard-diagram"><div class="onboard-box">Input</div><span class="onboard-arrow">\u2192</span><div class="onboard-box">States &amp; rules</div><span class="onboard-arrow">\u2192</span><div class="onboard-box">Stack</div></div>' },
+    { title: 'How transitions work', html: '<p>Each transition reads (or skips) one input symbol, pops the top stack symbol, then pushes a (possibly empty) string back. An <strong>&epsilon;-transition</strong> does not read input.</p><p class="log-mono">Example: a, Z\u2080 / A Z\u2080</p><p>Read <strong>a</strong>, pop Z\u2080, push A then Z\u2080 so A is on top.</p>' },
+    { title: 'What the stack does', html: '<p>For a<sup>n</sup>b<sup>n</sup>, each <strong>a</strong> pushes a counter symbol; each <strong>b</strong> removes one. When the string is finished, acceptance checks state and input.</p>' },
+    { title: 'Using this app', html: '<p><strong>Left:</strong> edit states and transitions. <strong>Center:</strong> type input, step or run, read the trace and explanations. <strong>Right:</strong> watch the stack. <strong>Bottom:</strong> drag nodes in the diagram.</p>' },
+  ];
+
+  function renderOnboard() {
+    const ov = el('onboardOverlay');
+    const bd = el('onboardBody');
+    const dots = el('onboardDots');
+    const next = el('onboardNext');
+    if (!ov || !bd) return;
+    const s = ONBOARD_SLIDES[onboardStep];
+    el('onboardTitle').textContent = s.title;
+    bd.innerHTML = s.html;
+    dots.innerHTML = ONBOARD_SLIDES.map((_, i) => '<span class="' + (i === onboardStep ? 'on' : '') + '"></span>').join('');
+    next.textContent = onboardStep >= ONBOARD_SLIDES.length - 1 ? 'Done' : 'Next';
+  }
+
+  function openOnboard(force) {
+    if (!force && localStorage.getItem(STORAGE_ONBOARD)) return;
+    onboardStep = 0;
+    el('onboardOverlay').classList.add('open');
+    el('onboardOverlay').setAttribute('aria-hidden', 'false');
+    renderOnboard();
+  }
+
+  function closeOnboard(save) {
+    if (save) localStorage.setItem(STORAGE_ONBOARD, '1');
+    el('onboardOverlay').classList.remove('open');
+    el('onboardOverlay').setAttribute('aria-hidden', 'true');
   }
 
   let inputString = '';
@@ -1599,6 +2526,7 @@
     posEl.textContent = inputString.length
       ? `Position ${curPos} of ${inputString.length}`
       : 'Position — of —';
+    updateSmartHint();
   }
 
   function handleSimKeydown(e) {
@@ -1669,6 +2597,9 @@
     if (!simPath) {
       tbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-muted);padding:20px">Press Run or Step to simulate.</td></tr>';
       badge.textContent = 'Step — / —';
+      renderStepExplain();
+      updateRefPanel();
+      renderCompTree();
       return;
     }
     badge.textContent = 'Step ' + (stepIndex + 1) + ' / ' + simPath.length;
@@ -1700,6 +2631,9 @@
         br.appendChild(div);
       }
     }
+    renderStepExplain();
+    updateRefPanel();
+    renderCompTree();
   }
 
   function renderStack() {
@@ -1707,6 +2641,7 @@
     const cfg = simPath && simPath[stepIndex] ? simPath[stepIndex].config : null;
     const stack = cfg ? cfg.stack.slice() : [];
     el('stackDepth').textContent = String(stack.length);
+    maxStackDepthSeen = Math.max(maxStackDepthSeen, stack.length);
 
     const anim = stepDirection;
     let oldS = null;
@@ -1765,6 +2700,9 @@
     if (deepW) deepW.style.display = stack.length > 8 ? 'block' : 'none';
     if (ovf) ovf.style.display = stack.length > 20 ? 'block' : 'none';
 
+    const sv = el('stackVisual');
+    if (sv) sv.classList.toggle('accept-glow', !!(lastRunAccepted && simPath && stepIndex === simPath.length - 1));
+
     stepDirection = 1;
   }
 
@@ -1798,6 +2736,7 @@
       : '';
     if (r.error) {
       simPath = null;
+      lastBfsNodes = null;
       lastRunAccepted = false;
       const b = el('resultBanner');
       b.className = 'banner reject show';
@@ -1806,6 +2745,7 @@
       return;
     }
     simPath = r.path;
+    lastBfsNodes = r.bfsNodes || null;
   }
 
   function updateProgressBanner() {
@@ -1851,6 +2791,8 @@
     simPath = null;
     stepIndex = 0;
     lastRunAccepted = false;
+    lastBfsNodes = null;
+    maxStackDepthSeen = 0;
     setBanner(false, false);
     el('bfsWarn').style.display = 'none';
     renderLog(); renderSimInput(); renderStack(); renderDiagram();
@@ -1912,34 +2854,81 @@
     else if (e.key === 'Enter') { e.preventDefault(); el('btnRun').click(); }
   });
 
-  el('btnTheme').onclick = () => showToast('Light mode coming soon', false);
+  el('btnShare').onclick = () => sharePdaUrl();
+  el('btnHowWorks').onclick = () => openOnboard(true);
+  el('onboardSkip').onclick = () => closeOnboard(true);
+  el('onboardNext').onclick = () => {
+    if (onboardStep >= ONBOARD_SLIDES.length - 1) closeOnboard(true);
+    else { onboardStep++; renderOnboard(); }
+  };
+
+  function refDrawerWide() {
+    return window.matchMedia('(min-width: 1400px)').matches;
+  }
+  function setRefOpen(open) {
+    const d = el('refDrawer');
+    const b = el('refBackdrop');
+    const t = el('btnRefToggle');
+    if (!d) return;
+    if (refDrawerWide()) {
+      d.classList.toggle('collapsed-wide', !open);
+    } else {
+      d.classList.toggle('open', open);
+      if (b) b.classList.toggle('show', open);
+    }
+    if (t) t.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  el('btnRefToggle').onclick = () => {
+    const d = el('refDrawer');
+    const open = refDrawerWide() ? d.classList.contains('collapsed-wide') : !d.classList.contains('open');
+    setRefOpen(open);
+  };
+  el('refBackdrop').onclick = () => setRefOpen(false);
+
+  el('btnDiagRaw').onclick = () => {
+    diagramExplained = false;
+    el('btnDiagRaw').classList.add('active');
+    el('btnDiagExplain').classList.remove('active');
+    renderDiagram();
+  };
+  el('btnDiagExplain').onclick = () => {
+    diagramExplained = true;
+    el('btnDiagExplain').classList.add('active');
+    el('btnDiagRaw').classList.remove('active');
+    renderDiagram();
+  };
+
+  function setTraceView(mode) {
+    simTraceView = mode;
+    const logOn = mode === 'log';
+    el('btnViewLog').classList.toggle('active', logOn);
+    el('btnViewTree').classList.toggle('active', !logOn);
+    el('logWrap').style.display = logOn ? '' : 'none';
+    el('compTreeHost').style.display = logOn ? 'none' : 'block';
+    if (!logOn) renderCompTree();
+  }
+  el('btnViewLog').onclick = () => setTraceView('log');
+  el('btnViewTree').onclick = () => setTraceView('tree');
+
+  el('btnAddTest').onclick = (e) => {
+    e.preventDefault();
+    const inp = prompt('Input string for test case');
+    if (inp == null) return;
+    const ex = (prompt('Expected: type accept or reject', 'accept') || 'accept').toLowerCase();
+    const expect = ex === 'reject' ? 'reject' : 'accept';
+    customTests.push({ input: inp, expect });
+    saveTestsToStorage();
+    renderTestTable();
+  };
+  el('btnRunAllTests').onclick = (e) => {
+    e.preventDefault();
+    runAllTests();
+  };
 
   function staggerTables() {
-    document.querySelectorAll('#statesBody .state-row, #transBody .trans-card').forEach((row, i) => {
+    document.querySelectorAll('#statesBody .state-chip, #transBody .trans-card').forEach((row, i) => {
       row.style.animationDelay = (i * 30) + 'ms';
       row.classList.add('stagger-item');
-    });
-  }
-
-  function wirePresetMenu() {
-    el('presetTrigger').addEventListener('click', (e) => {
-      e.stopPropagation();
-      el('presetMenu').classList.toggle('open');
-    });
-    el('presetMenu').addEventListener('click', (e) => {
-      const b = e.target.closest('[data-preset]');
-      if (!b) return;
-      const v = b.getAttribute('data-preset');
-      if (!v || !PRESETS[v]) return;
-      el('presetMenu').classList.remove('open');
-      el('presetTriggerLabel').textContent = PRESET_META[v] ? PRESET_META[v].title : v;
-      flashSkeleton();
-      pda = PRESETS[v]();
-      savePDA();
-      staggerTables();
-      renderStates(); renderTransitions(); resetSim();
-      fitDiagramToContent();
-      renderDiagram();
     });
   }
 
@@ -1960,8 +2949,12 @@
     r.onload = () => {
       try {
         pda = JSON.parse(r.result);
+        currentPresetKey = null;
+        setPresetActiveUI('');
         savePDA();
         renderStates(); renderTransitions(); resetSim();
+        updatePresetExplainCard();
+        updateLangBadges();
         fitDiagramToContent();
         renderDiagram();
         showToast('PDA definition imported successfully', true);
@@ -2071,6 +3064,8 @@
       if (activeStates.has(name)) cls += ' active';
       else if (visitedStates.has(name)) cls += ' visited';
       if (st && st.isStart) cls += ' start';
+      const atEndAccept = lastRunAccepted && simPath && stepIndex === simPath.length - 1;
+      if (atEndAccept && activeStates.has(name) && st && st.isAccept) cls += ' celebrate';
       g.setAttribute('class', cls);
       g.setAttribute('transform', `translate(${p.x},${p.y})`);
       g.dataset.stateName = name;
@@ -2082,7 +3077,7 @@
         const c2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         c2.setAttribute('class', 'inner');
         c2.setAttribute('r', '18');
-        c2.setAttribute('fill', '#181c24');
+        c2.setAttribute('fill', '#1a2340');
         g.appendChild(c1);
         g.appendChild(c2);
       } else {
@@ -2105,7 +3100,7 @@
         line.setAttribute('y1', '0');
         line.setAttribute('x2', '-26');
         line.setAttribute('y2', '0');
-        line.setAttribute('stroke', '#5b8af5');
+        line.setAttribute('stroke', '#e8533a');
         line.setAttribute('stroke-width', '2');
         line.setAttribute('marker-end', 'url(#arrowheadActive)');
         g.insertBefore(line, g.firstChild);
@@ -2193,18 +3188,25 @@
         if (isAct) path.setAttribute('marker-end', 'url(#arrowheadActive)');
         else path.setAttribute('marker-end', 'url(#arrowhead)');
 
-        const label = edgeLabelText(t);
+        const rawLabel = edgeLabelText(t);
         const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-        fo.setAttribute('x', mid.x - 58);
-        fo.setAttribute('y', mid.y - 15);
-        fo.setAttribute('width', '116');
-        fo.setAttribute('height', '32');
+        const exW = diagramExplained ? 200 : 116;
+        const exH = diagramExplained ? 44 : 32;
+        fo.setAttribute('x', mid.x - exW / 2);
+        fo.setAttribute('y', mid.y - exH / 2);
+        fo.setAttribute('width', String(exW));
+        fo.setAttribute('height', String(exH));
         const div = document.createElement('div');
-        div.style.cssText = 'font-size:10px;line-height:1.25;font-family:ui-monospace,monospace;text-align:center;background:#111318;border:1px solid #2a2f3d;border-radius:6px;padding:4px 7px;color:#e8eaf0;white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;';
+        div.style.cssText = 'font-size:10px;line-height:1.25;font-family:JetBrains Mono,monospace;text-align:center;background:#fff;border:1px solid #ddd8cc;border-radius:6px;padding:4px 7px;color:#1a2340;white-space:normal;max-width:' + exW + 'px;overflow:hidden;text-overflow:ellipsis;';
         const isE = !t.input || t.input === '';
-        div.innerHTML = isE
-          ? `<span style="color:#f5a623;font-style:italic">ε</span>, ${escapeHtml(t.stackTop)} / ${escapeHtml(normalizePush(t.push).join('') || 'ε')}`
-          : escapeHtml(label);
+        if (diagramExplained) {
+          div.style.fontFamily = 'Plus Jakarta Sans,system-ui,sans-serif';
+          div.textContent = edgeLabelEnglish(t);
+        } else {
+          div.innerHTML = isE
+            ? `<span style="color:#d97706;font-style:italic">ε</span>, ${escapeHtml(t.stackTop)} / ${escapeHtml(normalizePush(t.push).join('') || 'ε')}`
+            : escapeHtml(rawLabel);
+        }
         fo.appendChild(div);
 
         g.appendChild(path);
@@ -2232,7 +3234,7 @@
       const p = ensurePos(n);
       const nx = ((p.x - minX + pad) / dx) * 108 + 6;
       const ny = ((p.y - minY + pad) / dy) * 64 + 8;
-      ctx.fillStyle = 'rgba(91,138,245,0.75)';
+      ctx.fillStyle = 'rgba(232,83,58,0.85)';
       ctx.beginPath();
       ctx.arc(nx, ny, 3, 0, Math.PI * 2);
       ctx.fill();
@@ -2338,13 +3340,15 @@
   window.addEventListener('resize', () => renderDiagram());
 
   document.addEventListener('click', () => {
-    const pm = el('presetMenu');
-    if (pm) pm.classList.remove('open');
     document.querySelectorAll('.state-dropdown').forEach(d => d.classList.remove('open'));
   });
 
-  buildPresetMenu();
-  wirePresetMenu();
+  loadTestsFromStorage();
+  wirePresetSegments();
+  tryLoadFromHash();
+  renderTestTable();
+  setRefOpen(refDrawerWide());
+  openOnboard(false);
 
   // Init
   renderStates();
@@ -2353,6 +3357,8 @@
   renderLog();
   renderSimInput();
   renderStack();
+  updatePresetExplainCard();
+  updateLangBadges();
 })();
   </script>
 </body>

@@ -1,57 +1,48 @@
-# PDA Simulator
+# Pushdown — Interactive PDA Simulator
 
-Single-page **Pushdown Automaton (PDA)** simulator: define states and transitions, run the machine with breadth-first search over configurations, and inspect the stack and state diagram. No build step required.
+## Overview
 
-## Run
+Pushdown is a web-based educational tool for exploring **Pushdown Automata (PDAs)**. It pairs a faithful step-by-step simulator with plain-English explanations, a computation-tree view for nondeterminism, and presets that illustrate classic context-free languages.
 
-Open `index.html` in a modern browser (double-click the file, or use a local static server):
+## Features
+
+- **Step-by-step simulation** with a configuration log and a “What just happened?” narration for each transition.
+- **Nondeterminism**: branch hints in the log and a **computation tree** built from the same BFS exploration as the acceptance search.
+- **Built-in test suite** with preset test vectors; add your own cases and run all with a progress bar.
+- **Four presets**: a^n b^n, palindrome over {a,b}, balanced parentheses, and a^n b^n c^n demo (no transitions — always rejects).
+- **PDA reference** drawer with the formal 7-tuple definition and live stats.
+- **Share**: copies a URL with a URL-safe Base64-encoded JSON definition (`#p=...`).
+- **Import / export** JSON; diagram node positions persist in `localStorage`.
+
+## How to run
+
+Open `index.html` in a modern browser (double-click, or serve the folder locally):
 
 ```bash
 cd /path/to/pda_visualizer
 python3 -m http.server 8080
+# visit http://localhost:8080
 ```
 
-Then visit `http://localhost:8080/index.html` (optional; opening the file directly also works for this app).
+No build step is required.
 
-## Define a custom PDA
+## How to define a custom PDA
 
-1. **States** — Add rows, edit names, set exactly one **Start** state and any **Accept** states.
-2. **Transitions** — Each row is one rule: `(From, Input, Stack top) → (To, Push list)`.
-   - Leave **Input** blank for an **ε-transition** (no input consumed). The UI shows ε in amber.
-   - **Stack top** must match the top-of-stack symbol before the move (the top is popped first).
-   - **Push** is a space-separated list, **top-first** (leftmost symbol becomes the new top). Leave empty or use ε for “push nothing after the pop.”
-3. **Bottom symbol** — The simulator uses `Z₀` as the initial stack bottom; include it in stack-top and push rules as needed.
-4. **Optional JSON field** — Transitions may include `"requireEmptyInput": true` so an ε-move is only allowed when no input remains (used by the aⁿbⁿ preset for the empty string).
+1. **States**: use the state chips on the left — set **S** (start) and **A** (accept), rename states, drag to reorder.
+2. **Transitions**: for each rule, set **from** / **to**, **input** (leave empty for ε), **stack top**, and **push** (top-first list; empty means push nothing after the pop).
+3. **Simulation**: type an input string, then **Step** or **Run**. The engine explores configurations in breadth-first order (cap: 10,000 nodes).
 
-Alphabet validation uses symbols that appear in your transitions (and `inputAlphabet` in the JSON) so you can grow the machine without editing a separate alphabet table.
+## Technical notes
 
-**Import / Export** — Use the header buttons to save or load a JSON definition. **Diagram positions** are stored separately in `localStorage` under `pda_sim_positions_v1`.
+- **Simulation engine**: BFS over configurations `(state, remaining input, stack)` with duplicate detection via a string key.
+- **Nondeterminism**: each dequeue expands all applicable transitions; the first accepting leaf found yields an accepting path.
+- **Stack / ε cycles**: search may truncate at the cap; the UI warns if that happens.
+- **Computation tree**: the same BFS stores a `children` list per node for visualization only; acceptance logic is unchanged.
 
-## Simulation engine and nondeterminism
+## Academic context
 
-The engine keeps a **configuration** `(state, remaining input, stack)` with the stack represented top-first.
+The tool is meant for courses in **formal languages and automata theory**: it makes the 7-tuple notation, transition labels, and the role of the stack tangible, and it contrasts languages that are context-free with those that are not (e.g. the a^n b^n c^n demo as a non-CFL pointer).
 
-- **Breadth-first search (BFS)** explores configurations in order of increasing number of moves, up to **10,000** configurations. If the cap is hit (often due to ε-cycles), a warning is shown and the result may be incomplete.
-- **Nondeterminism** — When several transitions apply, all are explored. The log shows **branching** information at the current step. The **accepting path** (shortest number of steps to an accepting configuration with **empty remaining input**) is reconstructed via parent pointers and used for the step-by-step trace and highlights.
-- **Acceptance** — A string is accepted iff BFS finds a configuration whose **state is accepting** and whose **remaining input is empty**.
+## License
 
-## Presets
-
-- **aⁿbⁿ** — Classic balanced `a`/`b` counts (includes ε with `requireEmptyInput` for the empty string).
-- **Palindrome** — Nondeterministic guess of the midpoint over `{a,b}`.
-- **Balanced parentheses** — `(` push, `)` pop, accept with only `Z₀` on the stack.
-- **aⁿbⁿcⁿ** — Empty transition set; illustrates that this language is not context-free (strings are rejected).
-
-## Keyboard
-
-| Key   | Action        |
-|-------|---------------|
-| Space | Step forward  |
-| Enter | Run           |
-| R     | Reset         |
-
-## Tech
-
-- Vanilla HTML/CSS/JS in `index.html`
-- SVG state diagram (draggable nodes, auto-layout, hover sync with transition rows)
-- CSS transitions for stack push/pop animations
+Use freely for teaching and learning.
