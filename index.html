@@ -76,11 +76,20 @@
     html { font-size: 15px; background: var(--bg-root); }
     body {
       margin: 0;
-      min-height: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
       font-family: var(--font-body);
       font-size: var(--text-base);
       background-color: var(--bg-base);
       color: var(--text-primary);
+    }
+    .app-shell {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }
     :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
     ::-webkit-scrollbar { width: 4px; height: 4px; }
@@ -200,6 +209,137 @@
     }
     .btn-icon-round:hover { background: var(--coral-light); box-shadow: 0 0 0 2px var(--coral-glow); }
 
+    /* Full-width input strip below header (horizontal scroll) */
+    .input-rail {
+      flex-shrink: 0;
+      border-bottom: 1px solid var(--border-dim);
+      background: linear-gradient(180deg, var(--bg-raised) 0%, var(--bg-surface) 100%);
+      z-index: 15;
+    }
+    .input-rail-inner {
+      max-width: 1920px;
+      margin: 0 auto;
+      padding: 8px 26px 10px;
+    }
+    .input-rail-scroll {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 10px 12px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding: 4px 2px 6px 0;
+      scrollbar-width: thin;
+      -webkit-overflow-scrolling: touch;
+    }
+    .input-rail-scroll::-webkit-scrollbar { height: 6px; }
+    .input-rail-scroll + .input-rail-scroll {
+      margin-top: 2px;
+      padding-top: 2px;
+      border-top: 1px dashed var(--border-dim);
+    }
+    .input-rail-kicker {
+      flex-shrink: 0;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-family: var(--font-ui);
+    }
+    .input-rail-field-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 8px;
+      flex: 1 1 200px;
+      min-width: min(280px, 55vw);
+      max-width: 480px;
+    }
+    .input-rail-field {
+      flex: 1 1 auto;
+      min-width: 140px;
+      width: auto;
+      padding: 8px 12px;
+      font-size: 13px;
+    }
+    .input-rail-field-wrap .input-valid-pill {
+      flex-shrink: 0;
+      white-space: nowrap;
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .input-rail-divider {
+      width: 1px;
+      height: 28px;
+      background: var(--border-bright);
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+    .input-rail-n-label {
+      flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .input-rail-examples-wrap {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+      margin: 0;
+    }
+    .input-rail-examples-wrap .sim-examples-label {
+      margin: 0;
+      flex-shrink: 0;
+    }
+    .input-rail-example-pills {
+      flex-wrap: nowrap;
+    }
+    .input-rail-token-strip {
+      flex: 1 1 auto;
+      min-width: 120px;
+      min-height: 40px;
+      padding: 4px 0;
+      flex-wrap: nowrap;
+    }
+    .input-rail-legend {
+      flex-shrink: 0;
+      margin: 0;
+      white-space: nowrap;
+      font-size: 10px;
+    }
+    .input-rail-position {
+      flex-shrink: 0;
+      margin: 0;
+      white-space: nowrap;
+      font-size: 11px;
+    }
+    .input-rail-status {
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      font-size: 11px;
+    }
+    .input-rail-hint {
+      flex-shrink: 0;
+      margin: 0;
+      min-width: 200px;
+      max-width: 360px;
+      padding: 6px 10px;
+      font-size: 11px;
+    }
+    @media (max-width: 1279px) {
+      .input-rail-inner { padding-left: 16px; padding-right: 16px; }
+      .input-rail-field-wrap { min-width: 160px; }
+    }
+
     /* Desktop: col1 = Definition + Stack; col2 = Simulation + diagram + trace (one tall column); row3 = tests */
     .app-main {
       display: grid;
@@ -209,8 +349,8 @@
       padding: 22px 26px 26px;
       max-width: 1920px;
       margin: 0 auto;
-      min-height: calc(100vh - 64px);
-      height: calc(100vh - 64px);
+      flex: 1;
+      min-height: 0;
       box-sizing: border-box;
       overflow: hidden;
       align-items: stretch;
@@ -241,7 +381,6 @@
       align-content: start;
     }
     .sim-input-section {
-      max-height: min(34vh, 380px);
       overflow-y: auto;
       overflow-x: hidden;
       padding-right: 4px;
@@ -2197,6 +2336,7 @@
     </div>
   </div>
 
+  <div class="app-shell">
   <header>
     <div class="header-left">
       <div class="brand-block">
@@ -2230,6 +2370,41 @@
       <button type="button" class="btn-icon-round" id="btnRefToggle" title="PDA reference" aria-expanded="false" aria-controls="refDrawer">?</button>
     </div>
   </header>
+
+  <div class="input-rail" id="inputRail" aria-label="Input string and examples">
+    <div class="input-rail-inner" id="spotlightSimInput">
+      <div class="input-rail-scroll input-rail-row1">
+        <span class="input-rail-kicker">Input</span>
+        <div class="input-rail-field-wrap">
+          <input type="text" class="sim-input-field input-rail-field" id="simInputField" placeholder="e.g. aabb or a^2b^2 (shorthand)…" autocomplete="off" title="Shorthand: a^3 = aaa; use n below for a^n, b^n. Run expands shorthand." />
+          <span class="input-valid-pill" id="inputValidPill"></span>
+        </div>
+        <span class="input-rail-divider" aria-hidden="true"></span>
+        <label class="input-rail-n-label" for="simShorthandN"><span class="log-mono">n</span></label>
+        <input type="number" class="sim-shorthand-n" id="simShorthandN" min="0" max="200" value="3" title="Used when the input contains a^n, b^n, etc." />
+        <button type="button" class="btn-expand-shorthand" id="btnExpandShorthand" title="Expand shorthand now (also happens when you Run)">Expand</button>
+        <span class="input-rail-divider" aria-hidden="true"></span>
+        <div class="sim-examples-block input-rail-examples-wrap" id="simExamplesWrap">
+          <span class="sim-examples-label input-rail-examples-label">Examples</span>
+          <div id="simExamplesRow" class="sim-examples-row input-rail-example-pills"></div>
+        </div>
+      </div>
+      <div class="input-rail-scroll input-rail-row2">
+        <div id="simTokenRow" class="sim-token-area input-rail-token-strip" tabindex="0" aria-label="Input tokens"></div>
+        <span class="input-rail-divider" aria-hidden="true"></span>
+        <span class="token-legend input-rail-legend" id="tokenLegend">Consumed &middot; pulse = current &middot; remaining</span>
+        <span class="input-rail-divider" aria-hidden="true"></span>
+        <div class="sim-position input-rail-position" id="simPosition">Position &mdash; of &mdash;</div>
+        <span class="input-rail-divider" aria-hidden="true"></span>
+        <div class="sim-status-strip input-rail-status" id="simStatusStrip">
+          <span id="simCharCount">0 characters</span><span class="dot-sep" aria-hidden="true">·</span>
+          <span id="simAlphabetOk">Alphabet &mdash;</span><span class="dot-sep" aria-hidden="true">·</span>
+          <span id="simPredict">Predicted: &mdash;</span>
+        </div>
+        <div class="smart-hint input-rail-hint" id="smartHint" style="display:none"></div>
+      </div>
+    </div>
+  </div>
 
   <div class="tabs-mobile" role="tablist">
     <button type="button" class="tab-btn active" data-tab="def">Define</button>
@@ -2265,7 +2440,7 @@
 
     <section class="card card-stagger-in" id="panelSim" data-panel="sim" style="animation-delay:80ms">
       <div class="section-head states"><span class="accent-bar"></span> Simulation &amp; state diagram</div>
-      <p class="section-sub">Input string, graph, run controls, and step log live together in this column. On small screens, use the <strong>Diagram</strong> tab to jump to the graph.</p>
+      <p class="section-sub">Use the <strong>input bar</strong> at the top for your string and examples. This column shows the graph, run controls, and trace. On small screens, use the <strong>Diagram</strong> tab to jump to the graph.</p>
       <div class="sim-work-column">
         <div class="sim-input-section">
       <div id="firstLoadCard" class="first-load-card" style="display:none" aria-hidden="true">
@@ -2277,33 +2452,6 @@
       </div>
       <div id="langBadges" class="lang-badges" style="display:none"></div>
       <div id="presetExplainCard" class="preset-explain-card" style="display:none"></div>
-      <div class="input-string-panel" id="spotlightSimInput">
-        <div class="sim-step-label">Step 1 &mdash; type your input string</div>
-        <div class="input-string-head">
-          <span>Input <span class="learn-term" style="font-weight:400;text-transform:none;letter-spacing:0">?<span class="learn-tip">Symbols from your alphabet. Shorthand: <span class="log-mono">a^3</span> means three <span class="log-mono">a</span>&rsquo;s; <span class="log-mono">a^n</span> uses the value of <span class="log-mono">n</span> below. Run expands shorthand to the real string.</span></span></span>
-          <span class="input-valid-pill" id="inputValidPill"></span>
-        </div>
-        <input type="text" class="sim-input-field" id="simInputField" placeholder="e.g. aabb or a^2b^2 (shorthand)..." autocomplete="off" />
-        <div class="sim-shorthand-row" aria-label="Repeat shorthand">
-          <p class="sim-shorthand-hint">Repeat notation: one symbol, then <span class="log-mono">^</span>, then a number or <span class="log-mono">n</span> (e.g. <span class="log-mono">a^3b^3</span> &rarr; <span class="log-mono">aaabbb</span>).</p>
-          <label for="simShorthandN"><span class="log-mono">n</span> =</label>
-          <input type="number" class="sim-shorthand-n" id="simShorthandN" min="0" max="200" value="3" title="Used when you write a^n, b^n, etc." />
-          <button type="button" class="btn-expand-shorthand" id="btnExpandShorthand" title="Expand shorthand now (also happens when you Run)">Expand now</button>
-        </div>
-        <div class="sim-examples-block" id="simExamplesWrap">
-          <p class="sim-examples-label">Examples</p>
-          <div id="simExamplesRow" class="sim-examples-row"></div>
-        </div>
-        <div id="simTokenRow" class="sim-token-area" tabindex="0" aria-label="Input tokens"></div>
-        <div class="token-legend" id="tokenLegend">Consumed &middot; pulse = current &middot; remaining</div>
-        <div class="sim-status-strip" id="simStatusStrip">
-          <span id="simCharCount">0 characters</span><span class="dot-sep" aria-hidden="true">·</span>
-          <span id="simAlphabetOk">Alphabet &mdash;</span><span class="dot-sep" aria-hidden="true">·</span>
-          <span id="simPredict">Predicted: &mdash;</span>
-        </div>
-        <div class="smart-hint" id="smartHint" style="display:none"></div>
-      </div>
-      <div class="sim-position" id="simPosition">Position &mdash; of &mdash;</div>
         </div>
         <div class="diagram-in-sim" id="diagramPanelAnchor" aria-label="State diagram">
       <div class="diagram-toolbar">
@@ -2489,6 +2637,7 @@
       </div>
     </details>
   </main>
+  </div>
 
   <div class="preset-picker-overlay" id="presetPickerOverlay" aria-hidden="true">
     <div class="preset-picker-modal" role="dialog" aria-modal="true" aria-labelledby="presetPickerTitle">
@@ -2789,7 +2938,7 @@
   const SPOTLIGHT_STEPS = [
     { sel: '#spotlightStates', text: 'States are the automaton\'s positions. Every PDA needs at least one start state and one accept state. Add them here.' },
     { sel: '#spotlightTrans', text: 'Transitions are the rules: if you\'re in state X, reading symbol Y, with Z on top of the stack — move to state W and update the stack.' },
-       { sel: '#spotlightSimInput', text: 'Once your PDA is defined, type a string here and press Run to see it in action.' },
+       { sel: '#spotlightSimInput', text: 'Use the bar at the top: type a string, pick an example pill, then press Run to simulate.' },
     { sel: '#diagramPanelAnchor', text: 'The state diagram lives right under your input — step the simulation to highlight states and transitions.' },
     { sel: '#spotlightStack', text: 'Watch the stack here — it\'s the PDA\'s memory.' },
   ];
