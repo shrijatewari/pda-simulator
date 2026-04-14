@@ -1290,7 +1290,7 @@
       position: relative;
       width: 100%;
       flex: 1 1 auto;
-      min-height: 220px;
+      min-height: 260px;
       height: 400px;
       border: 1px solid var(--border-base);
       border-radius: var(--radius-md);
@@ -1336,10 +1336,10 @@
     }
     .diagram-empty svg { opacity: 0.25; margin-bottom: 12px; }
     .diagram-svg { width: 100%; height: 100%; display: block; }
-    .node circle { fill: var(--bg-raised); stroke: var(--border-bright); stroke-width: 1.5; cursor: grab; }
+    .node circle { fill: var(--bg-raised); stroke: var(--border-bright); stroke-width: 1.75; cursor: grab; }
     .node.start > circle { stroke: var(--accent); stroke-width: 2; }
-    .node.accept circle.outer { r: 22; stroke: var(--success); stroke-width: 3; }
-    .node.accept circle.inner { r: 18; fill: #252525; }
+    .node.accept circle.outer { r: 31; stroke: var(--success); stroke-width: 3; }
+    .node.accept circle.inner { r: 24; fill: #252525; }
     .node.visited > circle { fill: rgba(168, 255, 62, 0.08); stroke: var(--border-bright); opacity: 1; }
     .node.active circle {
       fill: var(--accent);
@@ -1358,12 +1358,12 @@
       40% { transform: scale(1.3); }
     }
     .node.active text { fill: var(--text-inverse); }
-    .node text { fill: var(--text-primary); font-size: 13px; font-weight: 600; font-family: var(--font-mono); }
+    .node text { fill: var(--text-primary); font-size: 15px; font-weight: 600; font-family: var(--font-mono); }
     .node:not(.active):not(.visited) text { fill: var(--text-primary); }
     .node:not(.active):not(.visited) circle { fill: var(--bg-raised); }
-    .edge-path { fill: none; stroke: var(--border-bright); stroke-width: 1; opacity: 0.9; }
-    .edge-path.used { stroke: rgba(168, 255, 62, 0.35); stroke-width: 1.5; }
-    .edge-path.highlight { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 10 8; animation: dashmove 1s linear infinite; }
+    .edge-path { fill: none; stroke: var(--border-bright); stroke-width: 1.25; opacity: 0.9; }
+    .edge-path.used { stroke: rgba(168, 255, 62, 0.35); stroke-width: 1.75; }
+    .edge-path.highlight { stroke: var(--accent); stroke-width: 2.25; stroke-dasharray: 10 8; animation: dashmove 1s linear infinite; }
     @keyframes dashmove { to { stroke-dashoffset: -36; } }
     .minimap {
       position: absolute;
@@ -4274,11 +4274,11 @@
     if (!nodePositions[name]) {
       const i = allStateNames().indexOf(name);
       const col = 3;
-      const gapX = 280;
-      const gapY = 200;
+      const gapX = 330;
+      const gapY = 235;
       nodePositions[name] = {
-        x: 220 + (i % col) * gapX,
-        y: 180 + Math.floor(i / col) * gapY,
+        x: 200 + (i % col) * gapX,
+        y: 170 + Math.floor(i / col) * gapY,
       };
     }
     return nodePositions[name];
@@ -4287,7 +4287,7 @@
   function fitDiagramToContent() {
     const names = allStateNames();
     if (!names.length) return;
-    const nodeR = 36;
+    const nodeR = 48;
     let minX = Infinity;
     let minY = Infinity;
     let maxX = -Infinity;
@@ -4299,15 +4299,15 @@
       minY = Math.min(minY, p.y - nodeR);
       maxY = Math.max(maxY, p.y + nodeR);
     });
-    const pad = 100;
-    const bw = Math.max(maxX - minX + pad * 2, 320);
-    const bh = Math.max(maxY - minY + pad * 2, 240);
+    const pad = 72;
+    const bw = Math.max(maxX - minX + pad * 2, 360);
+    const bh = Math.max(maxY - minY + pad * 2, 280);
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
     const w = svg.clientWidth || 900;
     const h = svg.clientHeight || 400;
-    const s = Math.min(w / bw, h / bh) * 0.92;
-    diagramZoom = Math.max(0.32, Math.min(1.65, s));
+    const s = Math.min(w / bw, h / bh) * 0.98;
+    diagramZoom = Math.max(0.35, Math.min(2.05, s));
     diagramPan.x = w / 2 - diagramZoom * cx;
     diagramPan.y = h / 2 - diagramZoom * cy;
   }
@@ -4356,32 +4356,32 @@
       if (st && st.isAccept) {
         const c1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         c1.setAttribute('class', 'outer');
-        c1.setAttribute('r', '24');
+        c1.setAttribute('r', '31');
         const c2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
         c2.setAttribute('class', 'inner');
-        c2.setAttribute('r', '18');
+        c2.setAttribute('r', '24');
         c2.setAttribute('fill', '#252525');
         g.appendChild(c1);
         g.appendChild(c2);
       } else {
         const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-        c.setAttribute('r', '22');
+        c.setAttribute('r', '28');
         g.appendChild(c);
       }
 
       const tx = document.createElementNS('http://www.w3.org/2000/svg', 'text');
       tx.setAttribute('text-anchor', 'middle');
-      tx.setAttribute('dy', '5');
-      tx.setAttribute('font-size', '13');
+      tx.setAttribute('dy', '6');
+      tx.setAttribute('font-size', '15');
       tx.setAttribute('font-weight', '600');
       tx.textContent = name;
       g.appendChild(tx);
 
       if (st && st.isStart) {
         const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-        line.setAttribute('x1', '-44');
+        line.setAttribute('x1', '-54');
         line.setAttribute('y1', '0');
-        line.setAttribute('x2', '-26');
+        line.setAttribute('x2', '-33');
         line.setAttribute('y2', '0');
         line.setAttribute('stroke', '#a8ff3e');
         line.setAttribute('stroke-width', '2');
@@ -4441,7 +4441,7 @@
         const { t, idx } = item;
         const p1 = pos(t.from);
         const p2 = pos(t.to);
-        const fan = (j - (list.length - 1) / 2) * 32;
+        const fan = (j - (list.length - 1) / 2) * 38;
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('class', 'edge-g');
         g.dataset.transIndex = String(idx);
@@ -4449,10 +4449,10 @@
         let d;
         let mid;
         if (t.from === t.to) {
-          const loopH = 88 + Math.abs(fan) * 6;
-          const spread = 100 + fan * 2.2;
-          d = `M ${p1.x + 24} ${p1.y - 12} Q ${p1.x + spread} ${p1.y - loopH} ${p1.x - 6} ${p1.y - 30}`;
-          mid = { x: p1.x + spread * 0.45 + fan * 0.08, y: p1.y - loopH * 0.55 - 8 };
+          const loopH = 102 + Math.abs(fan) * 7;
+          const spread = 118 + fan * 2.4;
+          d = `M ${p1.x + 30} ${p1.y - 14} Q ${p1.x + spread} ${p1.y - loopH} ${p1.x - 8} ${p1.y - 36}`;
+          mid = { x: p1.x + spread * 0.45 + fan * 0.08, y: p1.y - loopH * 0.55 - 10 };
         } else {
           const dx = p2.x - p1.x;
           const dy = p2.y - p1.y;
@@ -4461,11 +4461,11 @@
           const uy = dy / len;
           const px = -uy;
           const py = ux;
-          const lift = Math.min(140, 52 + len * 0.42);
+          const lift = Math.min(158, 60 + len * 0.44);
           const mx = (p1.x + p2.x) / 2 + px * fan + ux * (fan * 0.08);
-          const my = (p1.y + p2.y) / 2 + py * (lift + Math.abs(fan) * 1.2);
+          const my = (p1.y + p2.y) / 2 + py * (lift + Math.abs(fan) * 1.25);
           d = `M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`;
-          mid = { x: mx, y: my -18 };
+          mid = { x: mx, y: my - 22 };
         }
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const activeTI = simPath && stepIndex > 0 && simPath[stepIndex] ? simPath[stepIndex].transIndex : -1;
@@ -4480,14 +4480,14 @@
 
         const rawLabel = edgeLabelText(t);
         const fo = document.createElementNS('http://www.w3.org/2000/svg', 'foreignObject');
-        const exW = diagramExplained ? 200 : 116;
-        const exH = diagramExplained ? 44 : 32;
+        const exW = diagramExplained ? 252 : 142;
+        const exH = diagramExplained ? 52 : 38;
         fo.setAttribute('x', mid.x - exW / 2);
         fo.setAttribute('y', mid.y - exH / 2);
         fo.setAttribute('width', String(exW));
         fo.setAttribute('height', String(exH));
         const div = document.createElement('div');
-        div.style.cssText = 'font-size:10px;line-height:1.25;font-family:Space Mono,monospace;text-align:center;background:#252525;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:4px 7px;color:#f0f0f0;white-space:normal;max-width:' + exW + 'px;overflow:hidden;text-overflow:ellipsis;';
+        div.style.cssText = 'font-size:12px;line-height:1.3;font-family:Space Mono,monospace;text-align:center;background:#252525;border:1px solid rgba(255,255,255,0.12);border-radius:6px;padding:5px 8px;color:#f0f0f0;white-space:normal;max-width:' + exW + 'px;overflow:hidden;text-overflow:ellipsis;';
         const isE = !t.input || t.input === '';
         if (diagramExplained) {
           div.style.fontFamily = 'Inter,system-ui,sans-serif';
@@ -4568,7 +4568,7 @@
     const cx = w / 2;
     const cy = h / 2;
     const base = 110 + names.length * 42;
-    const radius = Math.min(Math.max(base, 220), Math.min(w, h) * 0.38);
+    const radius = Math.min(Math.max(base, 260), Math.min(w, h) * 0.46);
     const target = {};
     names.forEach((name, i) => {
       const ang = (i / names.length) * Math.PI * 2 - Math.PI / 2;
@@ -4598,7 +4598,7 @@
   };
 
   el('diagramZoomIn').onclick = () => {
-    diagramZoom = Math.min(2.5, diagramZoom * 1.15);
+    diagramZoom = Math.min(2.85, diagramZoom * 1.15);
     renderDiagram();
   };
   el('diagramZoomOut').onclick = () => {
@@ -4610,7 +4610,7 @@
   el('diagramViewport').addEventListener('wheel', (e) => {
     e.preventDefault();
     const z = e.deltaY < 0 ? 1.08 : 1 / 1.08;
-    diagramZoom = Math.max(0.25, Math.min(2.5, diagramZoom * z));
+    diagramZoom = Math.max(0.25, Math.min(2.85, diagramZoom * z));
     renderDiagram();
   }, { passive: false });
   el('diagramViewport').addEventListener('mousedown', (e) => {
