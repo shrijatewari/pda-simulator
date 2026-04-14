@@ -200,11 +200,11 @@
     }
     .btn-icon-round:hover { background: var(--coral-light); box-shadow: 0 0 0 2px var(--coral-glow); }
 
-    /* Desktop: row1 = Definition | Simulation; row2 = Stack | Diagram; row3 = tests */
+    /* Desktop: row1 = Definition | Simulation; row2 = Stack | Diagram; row3 = tests — wider/right column for diagram + sim */
     .app-main {
       display: grid;
-      grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr);
-      grid-template-rows: minmax(0, 1.18fr) minmax(0, 0.82fr) auto;
+      grid-template-columns: minmax(260px, 0.38fr) minmax(300px, 0.62fr);
+      grid-template-rows: minmax(0, 0.96fr) minmax(0, 1.04fr) auto;
       gap: 22px;
       padding: 22px 26px 26px;
       max-width: 1920px;
@@ -1053,15 +1053,47 @@
     }
 
     .step-explain-card {
-      margin-top: 16px;
-      padding: 16px 18px;
+      margin-top: 0;
+      margin-bottom: 14px;
+      padding: 0;
       border-radius: var(--radius-md);
       border: 1px solid var(--border-dim);
-      background: var(--bg-raised);
+      background: var(--workspace-inset);
       box-shadow: none;
       transition: opacity 0.2s ease, transform 0.2s ease;
+      overflow: hidden;
     }
     .step-explain-card.refreshing { opacity: 0; transform: translateY(4px); }
+    .step-explain-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg-raised);
+      border-bottom: 1px solid var(--border-dim);
+    }
+    .step-explain-kicker {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      font-family: var(--font-ui);
+    }
+    .step-explain-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-family: var(--font-sans);
+      cursor: pointer;
+      user-select: none;
+    }
+    .step-explain-toggle input { accent-color: var(--accent); width: 16px; height: 16px; }
+    .step-explain-panel { padding: 14px 16px 16px; }
     .step-explain-head {
       display: flex;
       align-items: center;
@@ -1069,12 +1101,19 @@
       font-family: var(--font-display);
       font-weight: 700;
       font-size: 14px;
-      color: var(--navy);
-      margin-bottom: 10px;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 8px;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+      border-bottom: none;
+      padding-bottom: 0;
     }
-    .step-explain-body { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+    .step-explain-sub {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--accent-text);
+      margin-bottom: 12px;
+      line-height: 1.45;
+    }
+    .step-explain-body { font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
     .step-explain-body ol { margin: 8px 0 0; padding-left: 1.2rem; }
     .step-explain-body li { margin-bottom: 4px; }
 
@@ -1133,7 +1172,7 @@
     .comp-tree-line.norm { color: var(--text-secondary); }
 
     /* Stack panel */
-    .stack-head-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .stack-head-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .stack-head-row .accent-bar { width: 3px; height: 16px; background: linear-gradient(180deg, var(--violet), var(--coral)); border-radius: 2px; }
     .stack-head-row .stack-label {
       font-family: var(--font-ui);
@@ -1150,21 +1189,22 @@
     @keyframes sh2 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2px); } }
     @keyframes sh3 { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
 
+    .stack-panel .section-sub { margin-bottom: 10px; max-width: none; }
     .stack-visual {
       display: flex;
       flex-direction: row;
       align-items: flex-start;
-      gap: 12px;
-      min-height: 220px;
+      gap: 10px;
+      min-height: 150px;
       position: relative;
-      padding-left: 32px;
+      padding-left: 28px;
     }
     .stack-spine {
       width: 1px;
       align-self: stretch;
-      min-height: 120px;
+      min-height: 72px;
       border-left: 1px dashed var(--border);
-      margin-top: 24px;
+      margin-top: 18px;
       flex-shrink: 0;
       position: relative;
     }
@@ -1178,18 +1218,18 @@
       opacity: 0.5;
     }
     .stack-main { flex: 1; display: flex; flex-direction: column; align-items: center; }
-    .stack-arrow { font-size: 11px; color: var(--text-muted); margin-bottom: 8px; width: 100%; text-align: center; font-family: var(--font-sans); }
+    .stack-arrow { font-size: 11px; color: var(--text-muted); margin-bottom: 6px; width: 100%; text-align: center; font-family: var(--font-sans); }
     .stack-arrow::before { content: '\25BC\00a0'; color: var(--coral); }
-    .stack-cells { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+    .stack-cells { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
     .stack-cell {
-      width: 180px;
-      height: 52px;
+      width: 150px;
+      height: 42px;
       border-radius: 10px;
       border: 2px solid var(--coral);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 20px;
+      font-size: 17px;
       font-weight: 700;
       font-family: var(--font-mono);
       background: var(--bg-elevated);
@@ -1204,22 +1244,22 @@
     .stack-cell.z0 .z0-mark { font-size: 14px; opacity: 0.85; }
     .stack-cell.push-anim { animation: stackPush 0.45s cubic-bezier(0.34, 1.45, 0.64, 1) forwards; }
     @keyframes stackPush {
-      from { transform: translateY(-56px) scale(0.9); opacity: 0; }
+      from { transform: translateY(-48px) scale(0.9); opacity: 0; }
       to { transform: translateY(0) scale(1); opacity: 1; }
     }
     .stack-cell.pop-anim { animation: stackPop 0.28s ease-in forwards; }
     @keyframes stackPop {
-      to { transform: translateY(-56px) scale(0.9); opacity: 0; }
+      to { transform: translateY(-48px) scale(0.9); opacity: 0; }
     }
     .stack-cell.pop-rev { animation: stackPushRev 0.35s ease-out forwards; }
     @keyframes stackPushRev {
-      from { transform: translateY(-56px) scale(0.9); opacity: 0; }
+      from { transform: translateY(-48px) scale(0.9); opacity: 0; }
       to { transform: translateY(0) scale(1); opacity: 1; }
     }
     .stack-cell.push-out-rev { animation: stackPopRev 0.28s ease-in forwards; }
     @keyframes stackPopRev {
       from { transform: translateY(0) scale(1); opacity: 1; }
-      to { transform: translateY(-56px) scale(0.9); opacity: 0; }
+      to { transform: translateY(-48px) scale(0.9); opacity: 0; }
     }
     .stack-visual.accept-glow .stack-cell { animation: stackAcceptGlow 0.6s ease; }
     @keyframes stackAcceptGlow {
@@ -1227,8 +1267,8 @@
       40% { box-shadow: 0 0 24px var(--accent-glow); }
     }
     .stack-empty {
-      width: 180px;
-      padding: 32px 16px;
+      width: 150px;
+      padding: 22px 12px;
       border: 2px dashed var(--border);
       border-radius: var(--radius-md);
       color: var(--text-muted);
@@ -1255,8 +1295,89 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       flex-shrink: 0;
+    }
+    .diagram-legend {
+      flex-shrink: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 14px;
+      padding: 10px 14px;
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-family: var(--font-sans);
+      color: var(--text-secondary);
+      line-height: 1.4;
+      background: var(--bg-raised);
+      border: 1px solid var(--border-dim);
+      border-radius: var(--radius-sm);
+    }
+    .diagram-legend > strong {
+      color: var(--text-muted);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      font-size: 10px;
+      margin-right: 4px;
+      width: 100%;
+      flex-basis: 100%;
+    }
+    @media (min-width: 900px) {
+      .diagram-legend > strong {
+        width: auto;
+        flex-basis: auto;
+        margin-right: 8px;
+      }
+    }
+    .diagram-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+    .diagram-legend .lg-sw {
+      flex-shrink: 0;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      box-sizing: border-box;
+    }
+    .diagram-legend .lg-sw.idle {
+      background: var(--bg-raised);
+      border: 1.5px solid var(--border-bright);
+    }
+    .diagram-legend .lg-sw.start {
+      background: var(--bg-raised);
+      border: 2px solid var(--accent);
+    }
+    .diagram-legend .lg-sw.accept {
+      background: var(--bg-raised);
+      border: 2px solid var(--success);
+      box-shadow: inset 0 0 0 2px var(--bg-raised);
+    }
+    .diagram-legend .lg-sw.visited {
+      background: rgba(168, 255, 62, 0.12);
+      border: 1.5px solid var(--border-bright);
+    }
+    .diagram-legend .lg-sw.active {
+      background: var(--accent);
+      border: 2px solid var(--accent);
+    }
+    .diagram-legend .lg-line {
+      width: 22px;
+      height: 0;
+      border-top: 2px solid var(--border-bright);
+      flex-shrink: 0;
+      opacity: 0.95;
+    }
+    .diagram-legend .lg-line.used {
+      border-top-color: rgba(168, 255, 62, 0.55);
+      border-top-width: 3px;
+    }
+    .diagram-legend .lg-line.hot {
+      border-top: 2px dashed var(--accent);
     }
     .diagram-mode-toggle {
       display: inline-flex;
@@ -1307,6 +1428,7 @@
       .diagram-viewport {
         height: auto;
         max-height: none;
+        min-height: 340px;
       }
     }
     @media (max-width: 1279px) {
@@ -2117,6 +2239,21 @@
       <div id="bfsWarn" class="warn-box" style="display:none"></div>
       </div>
       <div class="sim-trace-block">
+      <div class="step-explain-card" id="stepExplainCard">
+        <div class="step-explain-toolbar">
+          <span class="step-explain-kicker">Step narration</span>
+          <label class="step-explain-toggle"><input type="checkbox" id="chkStepNarration" checked /> Show plain-English steps</label>
+        </div>
+        <div class="step-explain-panel" id="stepExplainPanel">
+          <div class="step-explain-head" id="stepExplainHead">What just happened?</div>
+          <div class="step-explain-sub" id="stepExplainSub"></div>
+          <div class="step-explain-body" id="stepExplainBody">Run or step the simulation to see a narration of each transition.</div>
+          <div class="step-explain-nav">
+            <button type="button" id="btnExplainPrev" disabled>&larr; Previous explanation</button>
+            <button type="button" id="btnExplainNext" disabled>Next explanation &rarr;</button>
+          </div>
+        </div>
+      </div>
       <div class="log-header-row">
         <div class="section-head states" style="margin:0"><span class="accent-bar"></span> Trace</div>
         <div class="sim-view-toggle" role="tablist">
@@ -2141,14 +2278,6 @@
       </div>
       <div id="compTreeHost" class="comp-tree-view" style="display:none" aria-live="polite"></div>
       <div id="branchArea"></div>
-      <div class="step-explain-card" id="stepExplainCard">
-        <div class="step-explain-head" id="stepExplainHead">What just happened?</div>
-        <div class="step-explain-body" id="stepExplainBody">Step through the simulation to see a plain-English narration of each transition.</div>
-        <div class="step-explain-nav">
-          <button type="button" id="btnExplainPrev" disabled>&larr; Previous explanation</button>
-          <button type="button" id="btnExplainNext" disabled>Next explanation &rarr;</button>
-        </div>
-      </div>
       </div>
     </section>
 
@@ -2211,6 +2340,17 @@
             Auto-layout
           </button>
         </div>
+      </div>
+      <div class="diagram-legend" id="diagramLegend" aria-label="Diagram color key">
+        <strong>Key</strong>
+        <span class="diagram-legend-item"><span class="lg-sw idle" aria-hidden="true"></span> State</span>
+        <span class="diagram-legend-item"><span class="lg-sw start" aria-hidden="true"></span> Start</span>
+        <span class="diagram-legend-item"><span class="lg-sw accept" aria-hidden="true"></span> Accept</span>
+        <span class="diagram-legend-item"><span class="lg-sw visited" aria-hidden="true"></span> Visited in run</span>
+        <span class="diagram-legend-item"><span class="lg-sw active" aria-hidden="true"></span> Current step</span>
+        <span class="diagram-legend-item"><span class="lg-line" aria-hidden="true"></span> Transition</span>
+        <span class="diagram-legend-item"><span class="lg-line used" aria-hidden="true"></span> On trace</span>
+        <span class="diagram-legend-item"><span class="lg-line hot" aria-hidden="true"></span> Active / hover rule</span>
       </div>
       <div class="diagram-viewport" id="diagramViewport">
         <div class="diagram-empty" id="diagramEmpty">
@@ -2288,6 +2428,7 @@
   const STORAGE_TESTS = 'pushdown_custom_tests_v1';
   const STORAGE_FIRST_CHOICE = 'pda_first_choice_v1';
   const STORAGE_SPOTLIGHT = 'pda_spotlight_done_v1';
+  const STORAGE_STEP_NARRATION = 'pda_step_narration_visible_v1';
 
   /** @typedef {{ id: string, name: string, isStart: boolean, isAccept: boolean }} State */
   /** @typedef {{ from: string, input: string, stackTop: string, to: string, push: string[] }} Transition */
@@ -3357,6 +3498,7 @@
     const card = el('stepExplainCard');
     const body = el('stepExplainBody');
     const head = el('stepExplainHead');
+    const sub = el('stepExplainSub');
     const bp = el('btnExplainPrev');
     const bn = el('btnExplainNext');
     if (!card || !body) return;
@@ -3364,19 +3506,25 @@
     setTimeout(() => {
       if (!simPath || stepIndex < 0 || stepIndex >= simPath.length) {
         if (head) head.textContent = 'What just happened?';
-        body.innerHTML = 'Step through the simulation to see a plain-English narration of each transition.';
+        if (sub) sub.textContent = '';
+        body.innerHTML = 'Run or step the simulation to see a plain-English narration of each transition.';
         if (bp) bp.disabled = true;
         if (bn) bn.disabled = true;
       } else {
         const maxIdx = stepIndex;
         if (explainViewStep > maxIdx) explainViewStep = maxIdx;
         if (explainViewStep < 0) explainViewStep = 0;
-        if (head) head.textContent = 'Step ' + (explainViewStep + 1) + ' of ' + simPath.length + ' \u2014 What happened?';
+        if (head) head.textContent = 'Step ' + (explainViewStep + 1) + ' of ' + simPath.length;
         if (explainViewStep === 0) {
+          if (sub) sub.textContent = 'Starting configuration — no transition fired yet.';
           body.innerHTML = buildStepExplanation(null, null, -1);
         } else {
           const cur = simPath[explainViewStep];
           const prev = simPath[explainViewStep - 1];
+          const t = cur.transIndex >= 0 ? pda.transitions[cur.transIndex] : null;
+          if (sub && t) {
+            sub.textContent = describeActionPlain(prev.config, t) + '  ·  ' + t.from + ' \u2192 ' + t.to;
+          } else if (sub) sub.textContent = '';
           body.innerHTML = buildStepExplanation(prev.config, { cfg: cur.config, t: pda.transitions[cur.transIndex] }, cur.transIndex);
         }
         if (bp) bp.disabled = explainViewStep <= 0;
@@ -4193,6 +4341,24 @@
   el('btnViewLog').onclick = () => setTraceView('log');
   el('btnViewTree').onclick = () => setTraceView('tree');
 
+  (function wireStepNarrationToggle() {
+    const chk = el('chkStepNarration');
+    const panel = el('stepExplainPanel');
+    if (!chk || !panel) return;
+    function apply() {
+      panel.style.display = chk.checked ? '' : 'none';
+    }
+    try {
+      const v = localStorage.getItem(STORAGE_STEP_NARRATION);
+      if (v === '0') chk.checked = false;
+    } catch (_) {}
+    chk.addEventListener('change', () => {
+      apply();
+      try { localStorage.setItem(STORAGE_STEP_NARRATION, chk.checked ? '1' : '0'); } catch (_) {}
+    });
+    apply();
+  })();
+
   el('btnAddTest').onclick = (e) => {
     e.preventDefault();
     const inp = prompt('Input string for test case');
@@ -4278,11 +4444,11 @@
     if (!nodePositions[name]) {
       const i = allStateNames().indexOf(name);
       const col = 3;
-      const gapX = 330;
-      const gapY = 235;
+      const gapX = 430;
+      const gapY = 300;
       nodePositions[name] = {
-        x: 200 + (i % col) * gapX,
-        y: 170 + Math.floor(i / col) * gapY,
+        x: 240 + (i % col) * gapX,
+        y: 200 + Math.floor(i / col) * gapY,
       };
     }
     return nodePositions[name];
@@ -4303,9 +4469,9 @@
       minY = Math.min(minY, p.y - nodeR);
       maxY = Math.max(maxY, p.y + nodeR);
     });
-    const pad = 72;
-    const bw = Math.max(maxX - minX + pad * 2, 360);
-    const bh = Math.max(maxY - minY + pad * 2, 280);
+    const pad = 88;
+    const bw = Math.max(maxX - minX + pad * 2, 420);
+    const bh = Math.max(maxY - minY + pad * 2, 320);
     const cx = (minX + maxX) / 2;
     const cy = (minY + maxY) / 2;
     const w = svg.clientWidth || 900;
@@ -4445,7 +4611,7 @@
         const { t, idx } = item;
         const p1 = pos(t.from);
         const p2 = pos(t.to);
-        const fan = (j - (list.length - 1) / 2) * 38;
+        const fan = (j - (list.length - 1) / 2) * 46;
         const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
         g.setAttribute('class', 'edge-g');
         g.dataset.transIndex = String(idx);
@@ -4453,10 +4619,10 @@
         let d;
         let mid;
         if (t.from === t.to) {
-          const loopH = 102 + Math.abs(fan) * 7;
-          const spread = 118 + fan * 2.4;
-          d = `M ${p1.x + 30} ${p1.y - 14} Q ${p1.x + spread} ${p1.y - loopH} ${p1.x - 8} ${p1.y - 36}`;
-          mid = { x: p1.x + spread * 0.45 + fan * 0.08, y: p1.y - loopH * 0.55 - 10 };
+          const loopH = 118 + Math.abs(fan) * 8;
+          const spread = 132 + fan * 2.6;
+          d = `M ${p1.x + 34} ${p1.y - 16} Q ${p1.x + spread} ${p1.y - loopH} ${p1.x - 10} ${p1.y - 42}`;
+          mid = { x: p1.x + spread * 0.45 + fan * 0.08, y: p1.y - loopH * 0.55 - 12 };
         } else {
           const dx = p2.x - p1.x;
           const dy = p2.y - p1.y;
@@ -4465,11 +4631,11 @@
           const uy = dy / len;
           const px = -uy;
           const py = ux;
-          const lift = Math.min(158, 60 + len * 0.44);
-          const mx = (p1.x + p2.x) / 2 + px * fan + ux * (fan * 0.08);
-          const my = (p1.y + p2.y) / 2 + py * (lift + Math.abs(fan) * 1.25);
+          const lift = Math.min(175, 68 + len * 0.46);
+          const mx = (p1.x + p2.x) / 2 + px * fan + ux * (fan * 0.09);
+          const my = (p1.y + p2.y) / 2 + py * (lift + Math.abs(fan) * 1.32);
           d = `M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`;
-          mid = { x: mx, y: my - 22 };
+          mid = { x: mx, y: my - 26 };
         }
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         const activeTI = simPath && stepIndex > 0 && simPath[stepIndex] ? simPath[stepIndex].transIndex : -1;
