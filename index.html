@@ -95,7 +95,7 @@
     ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: var(--bg-hover); border-radius: 2px; }
     ::-webkit-scrollbar-thumb { background: var(--border-bright); border-radius: 2px; }
-    button:active, .btn-coral:active, .btn-run:active, .btn-step:active, .btn-reset:active, .btn-ghost-header:active { transform: scale(0.96); transition: transform 80ms ease; }
+    button:active, .btn-coral:active, .btn-run:active, .btn-autoplay:active, .btn-step:active, .btn-reset:active, .btn-ghost-header:active { transform: scale(0.96); transition: transform 80ms ease; }
 
     .kbd {
       display: inline-flex;
@@ -344,7 +344,7 @@
     /* Desktop: col1 = Definition + Stack; col2 = Simulation + diagram + trace (one tall column); row3 = tests */
     .app-main {
       display: grid;
-      grid-template-columns: minmax(240px, 0.26fr) minmax(420px, 0.74fr);
+      grid-template-columns: minmax(260px, 0.36fr) minmax(340px, 0.64fr);
       grid-template-rows: minmax(0, 0.96fr) minmax(0, 1.04fr) auto;
       gap: 18px;
       padding: 16px 20px 20px;
@@ -385,7 +385,7 @@
     }
     .sim-work-column {
       display: grid;
-      grid-template-rows: auto minmax(0, 1fr) auto minmax(96px, min(18vh, 220px));
+      grid-template-rows: auto minmax(200px, min(52vh, 680px)) auto minmax(100px, min(22vh, 260px));
       overflow: hidden;
       gap: 0;
       min-height: 0;
@@ -1046,6 +1046,28 @@
     }
     .btn-run:hover:not(:disabled) { filter: brightness(1.05); }
     .btn-run:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-autoplay {
+      height: 42px;
+      padding: 0 16px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--accent);
+      background: var(--bg-raised);
+      color: var(--accent);
+      font-weight: 600;
+      font-size: var(--text-sm);
+      font-family: var(--font-ui);
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.08s;
+    }
+    .btn-autoplay:hover {
+      background: var(--accent-dim);
+      color: var(--text-primary);
+      border-color: var(--accent);
+    }
+    .btn-autoplay:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
     .btn-step {
       height: 38px;
       padding: 0 14px;
@@ -1668,7 +1690,7 @@
         min-height: 300px;
       }
       .diagram-in-sim .diagram-viewport {
-        min-height: min(62vh, 900px);
+        min-height: 0;
         flex: 1 1 auto;
       }
     }
@@ -2533,6 +2555,7 @@
         <button type="button" id="btnBack" class="btn-step">&larr; Step back</button>
         <button type="button" id="btnStep" class="btn-step">Step forward <span class="kbd">Space</span></button>
         <button type="button" id="btnRun" class="btn-run" title="">Run all <span class="kbd">Enter</span></button>
+        <button type="button" id="btnAutoPlay" class="btn-autoplay" title="Run and auto-step each configuration (uses Speed below; same as Run with Auto-step on)">Auto play</button>
       </div>
       <div class="speed-row">
         <span style="color:var(--text-muted);font-size:var(--text-sm);font-family:var(--font-ui)">Speed</span>
@@ -3431,10 +3454,11 @@
   }
   function updateRunButtonState() {
     const btn = el('btnRun');
-    if (!btn) return;
+    const ap = el('btnAutoPlay');
     const ok = pda.transitions.length > 0 && pda.states.some(s => s.isStart) && pda.states.some(s => s.isAccept);
-    btn.disabled = !ok;
-    btn.title = ok ? '' : 'Define at least one state and one transition first.';
+    const title = ok ? '' : 'Define at least one state and one transition first.';
+    if (btn) { btn.disabled = !ok; btn.title = title; }
+    if (ap) { ap.disabled = !ok; ap.title = ok ? 'Run and auto-step each configuration at the Speed below' : title; }
   }
 
   function renderStates() {
@@ -4438,7 +4462,7 @@
     renderLog(); renderSimInput(); renderStack(); renderDiagram();
   }
 
-  el('btnRun').onclick = () => {
+  function runSimulationClick() {
     if (autoTimer) clearInterval(autoTimer);
     autoTimer = null;
     if (resolveInputForSimulation() === null) {
@@ -4482,6 +4506,12 @@
       updateProgressBanner();
       renderLog(); renderSimInput(); renderStack(); renderDiagram();
     }
+  }
+
+  el('btnRun').onclick = runSimulationClick;
+  el('btnAutoPlay').onclick = () => {
+    el('autoRun').checked = true;
+    runSimulationClick();
   };
 
   el('btnStep').onclick = stepFwd;
