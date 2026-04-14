@@ -1,47 +1,56 @@
 # Pushdown — Interactive PDA Simulator
 
+**Live app:** [pdavisualizer.vercel.app](https://pdavisualizer.vercel.app)  
+**Repository:** [github.com/shrijatewari/pda-simulator](https://github.com/shrijatewari/pda-simulator)
+
 ## Overview
 
-Pushdown is a web-based educational tool for exploring **Pushdown Automata (PDAs)**. It pairs a faithful step-by-step simulator with plain-English explanations, a computation-tree view for nondeterminism, and presets that illustrate classic context-free languages.
+Pushdown is a browser-based tool for exploring **pushdown automata (PDAs)**. You define states and transitions, run or step through inputs, and see the **stack**, **state diagram**, **step log**, and optional **plain-English** narration of each move.
 
 ## Features
 
-- **Step-by-step simulation** with a configuration log and a “What just happened?” narration for each transition.
-- **Nondeterminism**: branch hints in the log and a **computation tree** built from the same BFS exploration as the acceptance search.
-- **Built-in test suite** with preset test vectors; add your own cases and run all with a progress bar.
-- **Four presets**: a^n b^n, palindrome over {a,b}, balanced parentheses, and a^n b^n c^n demo (no transitions — always rejects).
-- **PDA reference** drawer with the formal 7-tuple definition and live stats.
-- **Share**: copies a URL with a URL-safe Base64-encoded JSON definition (`#p=...`).
-- **Import / export** JSON; diagram node positions persist in `localStorage`.
+- **Definition panel** — States (start / accept), transitions with ε-input, stack top, and top-first push lists.
+- **Input bar** (below the header) — String entry, `n` for `a^n`-style shorthand, **Expand**, **example** pills, token strip, and alphabet / prediction hints (horizontally scrollable on small screens).
+- **Simulation column** — **State diagram** (draggable nodes, graph / plain-English edge labels, zoom, fit, auto-layout), **Run all**, **Auto play** (run with auto-step at the chosen speed), step back/forward, and **trace** with step log / computation tree, **Prev step / Next step**, and narration toggle.
+- **Stack panel** — Visual stack with step animations.
+- **Nondeterminism** — Branch notes in the log; **computation tree** from the same BFS used for acceptance.
+- **Test suite** — Preset checks plus custom cases and **Run all**.
+- **Presets** — e.g. \(a^n b^n\), palindrome, parentheses, and an \(a^n b^n c^n\) demo (non-CFL illustration).
+- **PDA reference** drawer — Formal 7-tuple and live stats.
+- **Share** — Link with URL-safe Base64-encoded definition (`#p=...`).
+- **Import / export** JSON; diagram positions stored in `localStorage`.
 
-## How to run
+## Run locally
 
-Open `index.html` in a modern browser (double-click, or serve the folder locally):
+Static single-page app — no build step:
 
 ```bash
 cd /path/to/pda_visualizer
 python3 -m http.server 8080
-# visit http://localhost:8080
+# open http://localhost:8080
 ```
 
-No build step is required.
+Or open `index.html` directly in a modern browser.
 
-## How to define a custom PDA
+## Deploy
 
-1. **States**: use the state chips on the left — set **S** (start) and **A** (accept), rename states, drag to reorder.
-2. **Transitions**: for each rule, set **from** / **to**, **input** (leave empty for ε), **stack top**, and **push** (top-first list; empty means push nothing after the pop).
-3. **Simulation**: type an input string, then **Step** or **Run**. The engine explores configurations in breadth-first order (cap: 10,000 nodes).
+The project is configured for **Vercel** (static `index.html`). Connect the repo or run `vercel --prod` from this directory.
+
+## Define a custom PDA
+
+1. **States** — At least one **start** and one **accept**; rename via the chips.
+2. **Transitions** — From / to, input (empty = ε), stack symbol read, push list (leftmost becomes new top; empty = no push after pop).
+3. **Run** — Enter a string in the top input bar, then **Run all**, **Auto play**, or **Step forward** / **Step back**. The simulator uses **BFS** over configurations `(state, remaining input, stack)` with duplicate detection (exploration cap: 10,000 nodes).
 
 ## Technical notes
 
-- **Simulation engine**: BFS over configurations `(state, remaining input, stack)` with duplicate detection via a string key.
-- **Nondeterminism**: each dequeue expands all applicable transitions; the first accepting leaf found yields an accepting path.
-- **Stack / ε cycles**: search may truncate at the cap; the UI warns if that happens.
-- **Computation tree**: the same BFS stores a `children` list per node for visualization only; acceptance logic is unchanged.
+- Acceptance: first accepting configuration found on the BFS frontier; the UI reconstructs a **trace path**.
+- Deep or cyclic ε/stack behavior can hit the cap; the UI surfaces a warning when that happens.
+- The computation tree is derived from the same BFS structure for visualization; it does not change acceptance logic.
 
-## Academic context
+## Academic use
 
-The tool is meant for courses in **formal languages and automata theory**: it makes the 7-tuple notation, transition labels, and the role of the stack tangible, and it contrasts languages that are context-free with those that are not (e.g. the a^n b^n c^n demo as a non-CFL pointer).
+Intended for **formal languages and automata** coursework: PDAs, ε-transitions, stack discipline, nondeterminism, and contrast with non-context-free languages.
 
 ## License
 
