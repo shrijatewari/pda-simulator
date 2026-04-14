@@ -200,17 +200,108 @@
 
     .app-main {
       display: grid;
-      grid-template-columns: 300px 1fr 240px;
-      grid-template-rows: 1fr auto auto;
+      grid-template-columns: minmax(260px, 300px) minmax(300px, 1fr) minmax(200px, 240px) minmax(280px, 36vw);
+      grid-template-rows: minmax(0, 1fr) auto;
       gap: 16px;
       padding: 16px;
       max-width: 1920px;
       margin: 0 auto;
       min-height: calc(100vh - 64px);
+      height: calc(100vh - 64px);
+      box-sizing: border-box;
+      overflow: hidden;
+      align-items: stretch;
     }
-    .test-suite-wide { grid-column: 1 / -1; }
+    #panelDef {
+      grid-column: 1;
+      grid-row: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    #panelSim {
+      grid-column: 2;
+      grid-row: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sim-controls-block {
+      flex: 0 0 auto;
+      overflow-y: auto;
+      overflow-x: hidden;
+      max-height: min(50vh, 520px);
+      padding-right: 2px;
+    }
+    .sim-trace-block {
+      flex: 1 1 auto;
+      min-height: 120px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-base);
+    }
+    #panelStack {
+      grid-column: 3;
+      grid-row: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    .test-suite-wide {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      min-height: 0;
+      max-height: min(36vh, 380px);
+      overflow: auto;
+      align-self: stretch;
+    }
+    .test-suite-wide:not([open]) {
+      max-height: none;
+      overflow: visible;
+    }
     @media (max-width: 1279px) {
-      .app-main { grid-template-columns: 1fr; grid-template-rows: auto; }
+      .app-main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+        height: auto;
+        min-height: calc(100vh - 64px);
+        overflow: visible;
+      }
+      #panelDef,
+      #panelSim,
+      #panelStack {
+        grid-column: 1;
+        grid-row: auto;
+        overflow: visible;
+      }
+      #panelSim {
+        display: block;
+        overflow: visible;
+      }
+      .sim-controls-block {
+        max-height: none;
+        overflow: visible;
+        padding-right: 0;
+      }
+      .sim-trace-block {
+        flex: none;
+        min-height: 0;
+        overflow: visible;
+        margin-top: 0;
+        padding-top: 0;
+        border-top: none;
+      }
+      .test-suite-wide {
+        grid-column: 1;
+        grid-row: auto;
+        max-height: none;
+        overflow: visible;
+      }
     }
     .tabs-mobile { display: none; gap: 8px; padding: 0 16px 8px; flex-wrap: wrap; }
     @media (max-width: 1279px) { .tabs-mobile { display: flex; } }
@@ -297,6 +388,9 @@
     }
 
     .def-scroll { overflow: auto; max-height: min(72vh, 620px); padding-right: 4px; }
+    @media (min-width: 1280px) {
+      .def-scroll { max-height: none; }
+    }
 
     /* State chips */
     .states-chip-wrap {
@@ -859,7 +953,14 @@
       border-radius: var(--radius-md);
       background: var(--bg-elevated);
       position: relative;
- }
+    }
+    @media (min-width: 1280px) {
+      .log-table-wrap {
+        max-height: none;
+        flex: 1 1 auto;
+        min-height: 160px;
+      }
+    }
     .log-table-wrap::before {
       content: '';
       position: absolute;
@@ -1015,6 +1116,13 @@
       border-radius: var(--radius-md);
       white-space: pre-wrap;
     }
+    @media (min-width: 1280px) {
+      .comp-tree-view {
+        max-height: none;
+        flex: 1 1 auto;
+        min-height: 120px;
+      }
+    }
     .comp-tree-line.accept { color: var(--teal); font-weight: 600; }
     .comp-tree-line.dead { color: var(--rose); opacity: 0.85; }
     .comp-tree-line.norm { color: var(--text-secondary); }
@@ -1127,8 +1235,24 @@
     .stack-overflow-banner { margin-top: 8px; padding: 8px 10px; border-radius: var(--radius-sm); background: var(--rose-light); border: 1px solid var(--rose); color: var(--rose); font-size: 12px; }
 
     /* Diagram */
-    .diagram-card { grid-column: 1 / -1; padding: 16px 20px 20px; }
-    .diagram-toolbar { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+    .diagram-card {
+      grid-column: 4;
+      grid-row: 1;
+      padding: 16px 20px 20px;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .diagram-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
+    }
     .diagram-mode-toggle {
       display: inline-flex;
       border-radius: 999px;
@@ -1163,6 +1287,8 @@
     .diagram-viewport {
       position: relative;
       width: 100%;
+      flex: 1 1 auto;
+      min-height: 220px;
       height: 400px;
       border: 1px solid var(--border-base);
       border-radius: var(--radius-md);
@@ -1171,6 +1297,24 @@
       background-size: 20px 20px;
       overflow: hidden;
       cursor: grab;
+    }
+    @media (min-width: 1280px) {
+      .diagram-viewport {
+        height: auto;
+        max-height: none;
+      }
+    }
+    @media (max-width: 1279px) {
+      .diagram-card {
+        grid-column: 1 / -1;
+        grid-row: auto;
+        display: block;
+        overflow: visible;
+      }
+      .diagram-viewport {
+        flex: none;
+        height: 400px;
+      }
     }
     .diagram-viewport:active { cursor: grabbing; }
     .diagram-empty {
@@ -1913,6 +2057,7 @@
     <section class="card card-stagger-in" id="panelSim" data-panel="sim" style="animation-delay:80ms">
       <div class="section-head states"><span class="accent-bar"></span> Simulation</div>
       <p class="section-sub">Type an input string, then run or step to watch how your PDA behaves.</p>
+      <div class="sim-controls-block">
       <div id="firstLoadCard" class="first-load-card" style="display:none" aria-hidden="true">
         <h2>Start with a preset, or build your own PDA</h2>
         <div class="first-load-actions">
@@ -1964,6 +2109,8 @@
       </div>
       <div id="resultBanner" class="banner" role="status"></div>
       <div id="bfsWarn" class="warn-box" style="display:none"></div>
+      </div>
+      <div class="sim-trace-block">
       <div class="log-header-row">
         <div class="section-head states" style="margin:0"><span class="accent-bar"></span> Trace</div>
         <div class="sim-view-toggle" role="tablist">
@@ -1995,6 +2142,7 @@
           <button type="button" id="btnExplainPrev" disabled>&larr; Previous explanation</button>
           <button type="button" id="btnExplainNext" disabled>Next explanation &rarr;</button>
         </div>
+      </div>
       </div>
     </section>
 
