@@ -198,10 +198,11 @@
     }
     .btn-icon-round:hover { background: var(--coral-light); box-shadow: 0 0 0 2px var(--coral-glow); }
 
+    /* Desktop: row1 = Definition | Simulation; row2 = Stack | Diagram; row3 = tests */
     .app-main {
       display: grid;
-      grid-template-columns: minmax(260px, 300px) minmax(300px, 1fr) minmax(200px, 240px) minmax(280px, 36vw);
-      grid-template-rows: minmax(0, 1fr) auto;
+      grid-template-columns: minmax(300px, 1fr) minmax(300px, 1fr);
+      grid-template-rows: minmax(0, 1.12fr) minmax(0, 0.88fr) auto;
       gap: 16px;
       padding: 16px;
       max-width: 1920px;
@@ -246,15 +247,15 @@
       border-top: 1px solid var(--border-base);
     }
     #panelStack {
-      grid-column: 3;
-      grid-row: 1;
+      grid-column: 1;
+      grid-row: 2;
       min-height: 0;
       overflow-y: auto;
       overflow-x: hidden;
     }
     .test-suite-wide {
       grid-column: 1 / -1;
-      grid-row: 2;
+      grid-row: 3;
       min-height: 0;
       max-height: min(36vh, 380px);
       overflow: auto;
@@ -274,7 +275,8 @@
       }
       #panelDef,
       #panelSim,
-      #panelStack {
+      #panelStack,
+      .diagram-card {
         grid-column: 1;
         grid-row: auto;
         overflow: visible;
@@ -1236,8 +1238,8 @@
 
     /* Diagram */
     .diagram-card {
-      grid-column: 4;
-      grid-row: 1;
+      grid-column: 2;
+      grid-row: 2;
       padding: 16px 20px 20px;
       min-height: 0;
       display: flex;
